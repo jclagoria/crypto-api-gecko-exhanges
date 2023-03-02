@@ -9,13 +9,7 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Exchange implements Serializable {
-
- @JsonProperty("id")
- private String id;
-
- @JsonProperty("name")
- private String name;
+public class Exchange extends ExchangeBase {
 
  @JsonProperty("year_established")
  private long yearEstablished;

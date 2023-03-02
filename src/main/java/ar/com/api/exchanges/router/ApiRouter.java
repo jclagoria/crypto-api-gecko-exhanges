@@ -23,6 +23,9 @@ public class ApiRouter {
  @Value("${coins.exchangeList}")
  private String URL_EXCHANGE_GECKO_API;
  
+ @Value("${coins.exchangeListMarket}")
+ private String URL_EXCHANGE_LIST_MARKET_API; 
+ 
  @Bean
  public RouterFunction<ServerResponse> route(ExchangesApiHandler handler) {
 
@@ -33,6 +36,8 @@ public class ApiRouter {
             .GET(URL_SERVICE_API + URL_EXCHANGE_GECKO_API, 
                         RequestPredicates.accept(MediaType.APPLICATION_JSON),
                         handler::getAllExchangesCoinGecko)
+            .GET(URL_SERVICE_API + URL_EXCHANGE_GECKO_API + URL_EXCHANGE_LIST_MARKET_API,
+                        handler::getAllExchangeMarketData)
             .build();
 
  }
