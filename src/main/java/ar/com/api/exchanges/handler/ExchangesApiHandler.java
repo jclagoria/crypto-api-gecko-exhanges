@@ -8,6 +8,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 import ar.com.api.exchanges.dto.ExchangeDTO;
 import ar.com.api.exchanges.model.Exchange;
+import ar.com.api.exchanges.model.ExchangeBase;
 import ar.com.api.exchanges.model.Ping;
 import ar.com.api.exchanges.services.CoinGeckoServiceStatus;
 import ar.com.api.exchanges.services.ExchangeApiService;
@@ -60,6 +61,17 @@ public class ExchangesApiHandler {
                .body(
                     serviceExchange.getAllExchanges(filterDto), 
                     Exchange.class);
+ }
+
+ public Mono<ServerResponse> getAllExchangeMarketData(ServerRequest sRequest) {
+
+     log.info("In getAllExchangeMarketData");
+
+     return ServerResponse
+                    .ok()
+                    .body(
+                         serviceExchange.getAllSupportedMarkets(), 
+                         ExchangeBase.class);
  }
 
 }
