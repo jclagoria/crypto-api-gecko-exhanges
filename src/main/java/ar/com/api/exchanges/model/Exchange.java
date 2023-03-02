@@ -9,7 +9,7 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Exchange extends ExchangeBase implements Serializable {
+public class Exchange extends ExchangeBase {
 
  @JsonProperty("year_established")
  private long yearEstablished;
