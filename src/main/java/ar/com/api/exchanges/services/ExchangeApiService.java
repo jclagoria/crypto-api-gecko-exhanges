@@ -5,10 +5,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import ar.com.api.exchanges.dto.ExchangeDTO;
+import ar.com.api.exchanges.dto.ExchangeVolumenDTO;
 import ar.com.api.exchanges.model.Exchange;
 import ar.com.api.exchanges.model.ExchangeBase;
+import ar.com.api.exchanges.model.ExchangeById;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
@@ -19,6 +22,9 @@ public class ExchangeApiService {
  
  @Value("${api.exchangeListMarket}")
  private String URL_EXCHANGE_LIST_GECKO_SERVICE_API;
+
+ @Value("${api.exchangeById}")
+ private String URL_EXCHANGE_BY_ID_SERVICE_API;
  
  private WebClient webClient;
 
@@ -51,6 +57,22 @@ public class ExchangeApiService {
              .retrieve()
              .bodyToFlux(ExchangeBase.class)
              .doOnError(throwable -> log.error("The service is unavailable!", throwable))
+            .onErrorComplete();
+ }
+
+ public Mono<ExchangeById> getExchangeVolumenById(ExchangeVolumenDTO filterDTO) {
+
+  log.info("In service getExchangeVolumenById -> " 
+              + URL_EXCHANGE_GECKO_SERVICE_API 
+              + URL_EXCHANGE_BY_ID_SERVICE_API);
+  
+  String idMarket = String.format(URL_EXCHANGE_BY_ID_SERVICE_API, filterDTO.getId()); 
+
+  return webClient
+            .get()
+            .uri(URL_EXCHANGE_GECKO_SERVICE_API + idMarket)
+            .retrieve().bodyToMono(ExchangeById.class)
+            .doOnError(throwable -> log.error("The service is unavailable!", throwable))
             .onErrorComplete();
  }
  
