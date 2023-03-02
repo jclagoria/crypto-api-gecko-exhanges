@@ -7,8 +7,10 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import ar.com.api.exchanges.dto.ExchangeDTO;
+import ar.com.api.exchanges.dto.ExchangeVolumenDTO;
 import ar.com.api.exchanges.model.Exchange;
 import ar.com.api.exchanges.model.ExchangeBase;
+import ar.com.api.exchanges.model.ExchangeById;
 import ar.com.api.exchanges.model.Ping;
 import ar.com.api.exchanges.services.CoinGeckoServiceStatus;
 import ar.com.api.exchanges.services.ExchangeApiService;
@@ -72,6 +74,22 @@ public class ExchangesApiHandler {
                     .body(
                          serviceExchange.getAllSupportedMarkets(), 
                          ExchangeBase.class);
+ }
+
+ public Mono<ServerResponse> getExchangeVolumenDataById(ServerRequest sRequest) {
+     
+     log.info("In getExchangeVolumenDataById");
+
+     ExchangeVolumenDTO filterDTO = ExchangeVolumenDTO
+                                        .builder()
+                                        .id(sRequest.pathVariable("idMarket"))
+                                        .build();
+
+     return ServerResponse
+                    .ok()
+                    .body(
+                         serviceExchange.getExchangeVolumenById(filterDTO),
+                         ExchangeById.class);
  }
 
 }
