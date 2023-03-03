@@ -6,9 +6,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import ar.com.api.exchanges.dto.ExchangeDTO;
 import ar.com.api.exchanges.dto.ExchangeVolumenDTO;
+import ar.com.api.exchanges.dto.TickersByIdDTO;
 import ar.com.api.exchanges.model.Exchange;
 import ar.com.api.exchanges.model.ExchangeBase;
 import ar.com.api.exchanges.model.ExchangeById;
+import ar.com.api.exchanges.model.TickersById;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -25,6 +27,9 @@ public class ExchangeApiService {
 
  @Value("${api.exchangeById}")
  private String URL_EXCHANGE_BY_ID_SERVICE_API;
+
+ @Value("${api.exchangeTickerById}")
+ private String URL_TICKER_EXCHANGE_BY_ID_SERVICE_API;
  
  private WebClient webClient;
 
@@ -32,6 +37,11 @@ public class ExchangeApiService {
   this.webClient = wClient;
  }
 
+ /**
+  * 
+  * @param filterDTO
+  * @return
+  */
  public Flux<Exchange> getAllExchanges(ExchangeDTO filterDTO) { 
 
   log.info("In service getAllExchanges " + URL_EXCHANGE_GECKO_SERVICE_API + filterDTO.getUrlFilterString());
@@ -45,6 +55,10 @@ public class ExchangeApiService {
             .onErrorComplete();
  }
 
+ /**
+  * 
+  * @return
+  */
  public Flux<ExchangeBase> getAllSupportedMarkets() {
 
   log.info("In service getAllSupportedMarkets -> " 
@@ -60,6 +74,11 @@ public class ExchangeApiService {
             .onErrorComplete();
  }
 
+ /**
+  * 
+  * @param filterDTO
+  * @return
+  */
  public Mono<ExchangeById> getExchangeVolumenById(ExchangeVolumenDTO filterDTO) {
 
   log.info("In service getExchangeVolumenById -> " 
@@ -71,9 +90,32 @@ public class ExchangeApiService {
   return webClient
             .get()
             .uri(URL_EXCHANGE_GECKO_SERVICE_API + idMarket)
-            .retrieve().bodyToMono(ExchangeById.class)
+            .retrieve()
+            .bodyToMono(ExchangeById.class)
             .doOnError(throwable -> log.error("The service is unavailable!", throwable))
             .onErrorComplete();
+ }
+
+ /**
+  * 
+  * @param filterDTO
+  * @return
+  */
+ public Mono<TickersById> getTicketExchangeById(TickersByIdDTO filterDTO) {
+
+  log.info("In service getTicketExchangeById -> " 
+              + URL_EXCHANGE_GECKO_SERVICE_API 
+              + URL_TICKER_EXCHANGE_BY_ID_SERVICE_API);
+  
+  String urlFilter = String.format(URL_TICKER_EXCHANGE_BY_ID_SERVICE_API, filterDTO.getId());  
+
+  return webClient
+           .get()
+           .uri(URL_EXCHANGE_GECKO_SERVICE_API + urlFilter + filterDTO.getUrlFilterString())
+           .retrieve()
+           .bodyToMono(TickersById.class)
+           .doOnError(throwable -> log.error("The service is unavailable!", throwable))
+           .onErrorComplete();
  }
  
 }

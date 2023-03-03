@@ -8,10 +8,12 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 import ar.com.api.exchanges.dto.ExchangeDTO;
 import ar.com.api.exchanges.dto.ExchangeVolumenDTO;
+import ar.com.api.exchanges.dto.TickersByIdDTO;
 import ar.com.api.exchanges.model.Exchange;
 import ar.com.api.exchanges.model.ExchangeBase;
 import ar.com.api.exchanges.model.ExchangeById;
 import ar.com.api.exchanges.model.Ping;
+import ar.com.api.exchanges.model.TickersById;
 import ar.com.api.exchanges.services.CoinGeckoServiceStatus;
 import ar.com.api.exchanges.services.ExchangeApiService;
 import ar.com.api.exchanges.utils.StringToInteger;
@@ -28,6 +30,11 @@ public class ExchangesApiHandler {
 
  private ExchangeApiService serviceExchange;
 
+ /**
+  * 
+  * @param serverRequest
+  * @return
+  */
  public Mono<ServerResponse> getStatusServiceCoinGecko(ServerRequest serverRequest) {
 
   log.info("In getStatusServiceCoinGecko");
@@ -39,6 +46,11 @@ public class ExchangesApiHandler {
                      Ping.class);
  }
 
+ /**
+  * 
+  * @param sRequest
+  * @return
+  */
  public Mono<ServerResponse> getAllExchangesCoinGecko(ServerRequest sRequest) {
 
      log.info("In getAllExchangesCoinGecko");
@@ -65,6 +77,11 @@ public class ExchangesApiHandler {
                     Exchange.class);
  }
 
+ /**
+  * 
+  * @param sRequest
+  * @return
+  */
  public Mono<ServerResponse> getAllExchangeMarketData(ServerRequest sRequest) {
 
      log.info("In getAllExchangeMarketData");
@@ -76,6 +93,11 @@ public class ExchangesApiHandler {
                          ExchangeBase.class);
  }
 
+ /**
+  * 
+  * @param sRequest
+  * @return
+  */
  public Mono<ServerResponse> getExchangeVolumenDataById(ServerRequest sRequest) {
      
      log.info("In getExchangeVolumenDataById");
@@ -90,6 +112,35 @@ public class ExchangesApiHandler {
                     .body(
                          serviceExchange.getExchangeVolumenById(filterDTO),
                          ExchangeById.class);
+ }
+
+ public Mono<ServerResponse> getTickerExchangeById(ServerRequest sRequest) {
+
+     log.info("In getTickerExchangeById");
+
+     Optional<Integer> optPerPage = Optional.empty();
+
+     if(sRequest.queryParam("page").isPresent()){
+          optPerPage = Optional
+                    .of(sRequest.queryParam("page")
+                    .get()
+                    .transform(StringToInteger.INSTANCE));
+     }          
+
+     TickersByIdDTO filterDTO = TickersByIdDTO
+                                   .builder()
+                                   .id(sRequest.pathVariable("idMarket"))
+                                   .coinIds(sRequest.queryParam("coinIds"))
+                                   .includeExchangeLogo(sRequest.queryParam("includeExchangeLogo"))
+                                   .page(optPerPage)
+                                   .depth(sRequest.queryParam("depth"))
+                                   .order(sRequest.queryParam("order"))
+                                   .build();
+
+     return ServerResponse
+                    .ok()
+                    .body(serviceExchange.getTicketExchangeById(filterDTO), 
+                    TickersById.class);
  }
 
 }
