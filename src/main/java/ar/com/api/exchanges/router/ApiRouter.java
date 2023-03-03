@@ -29,6 +29,9 @@ public class ApiRouter {
  @Value("${coins.exchangeById}")
  private String URL_EXCHANGE_VOLUMN_DATA_BY_ID_API;
 
+ @Value("${coins.exchangeTickerById}")
+ private String URL_EXCHANGE_TICKER_BY_ID_API;
+
  @Bean
  public RouterFunction<ServerResponse> route(ExchangesApiHandler handler) {
 
@@ -43,6 +46,9 @@ public class ApiRouter {
                         handler::getAllExchangeMarketData)
             .GET(URL_SERVICE_API + URL_EXCHANGE_GECKO_API + URL_EXCHANGE_VOLUMN_DATA_BY_ID_API,
                         handler::getExchangeVolumenDataById)                        
+            .GET(URL_SERVICE_API + URL_EXCHANGE_GECKO_API + URL_EXCHANGE_TICKER_BY_ID_API,
+                        RequestPredicates.accept(MediaType.APPLICATION_JSON),
+                        handler::getTickerExchangeById)
             .build();
 
  }
