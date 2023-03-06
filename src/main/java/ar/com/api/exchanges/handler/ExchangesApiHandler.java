@@ -9,6 +9,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import ar.com.api.exchanges.dto.ExchangeDTO;
 import ar.com.api.exchanges.dto.ExchangeVolumenDTO;
 import ar.com.api.exchanges.dto.TickersByIdDTO;
+import ar.com.api.exchanges.dto.VolumeChartByIdDTO;
 import ar.com.api.exchanges.model.Exchange;
 import ar.com.api.exchanges.model.ExchangeBase;
 import ar.com.api.exchanges.model.ExchangeById;
@@ -141,6 +142,23 @@ public class ExchangesApiHandler {
                     .ok()
                     .body(serviceExchange.getTicketExchangeById(filterDTO), 
                     TickersById.class);
+ }
+
+ public Mono<ServerResponse> getVolumeChartById(ServerRequest sRequest) {
+     
+     log.info("In getVolumeChartById");
+
+     VolumeChartByIdDTO filterDTO = VolumeChartByIdDTO
+                              .builder()
+                              .id(sRequest.pathVariable("idMarket"))
+                              .days(Integer.valueOf(sRequest.queryParam("days").get()))
+                              .build();
+
+     return ServerResponse
+               .ok()
+               .body(
+                    serviceExchange.getVolumeChartById(filterDTO), 
+                    String.class);
  }
 
 }

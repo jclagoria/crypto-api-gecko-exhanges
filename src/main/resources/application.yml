@@ -9,6 +9,7 @@ coins:
   exchangeListMarket: '/list'
   exchangeById: '/{idMarket}'
   exchangeTickerById: '/{idMarket}/tickers'
+  exchangeVolumeChart: '/{idMarket}/volumeChart'
 
 ## Url Coin Gecko RestService
 api:
@@ -18,3 +19,4 @@ api:
   exchangeListMarket: '/list'
   exchangeById: '/%s'
   exchangeTickerById: '/%s/tickers'
+  exchangeVolumeChart: '/%s/volume_chart'
