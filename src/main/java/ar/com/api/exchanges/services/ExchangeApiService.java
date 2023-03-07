@@ -1,7 +1,5 @@
 package ar.com.api.exchanges.services;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -10,6 +8,7 @@ import ar.com.api.exchanges.dto.ExchangeDTO;
 import ar.com.api.exchanges.dto.ExchangeVolumenDTO;
 import ar.com.api.exchanges.dto.TickersByIdDTO;
 import ar.com.api.exchanges.dto.VolumeChartByIdDTO;
+import ar.com.api.exchanges.dto.VolumetChartByIdAndRangeDTO;
 import ar.com.api.exchanges.model.Exchange;
 import ar.com.api.exchanges.model.ExchangeBase;
 import ar.com.api.exchanges.model.ExchangeById;
@@ -36,6 +35,9 @@ public class ExchangeApiService {
 
  @Value("${api.exchangeVolumeChart}")
  private String URL_VOLUME_CHART_BY_ID_GECKO_API;
+
+ @Value("${api.exchangeVolumeChartRange}")
+ private String URL_VOLUME_CHART_BY_RANGE_GECKO_API;
  
  private WebClient webClient;
 
@@ -130,9 +132,7 @@ public class ExchangeApiService {
               + URL_EXCHANGE_GECKO_API 
               + URL_VOLUME_CHART_BY_ID_GECKO_API);
          
-  String urlApiGecko = String.format(URL_VOLUME_CHART_BY_ID_GECKO_API, filterDto.getId());
-
-  log.info("value url -> " + URL_EXCHANGE_GECKO_API + urlApiGecko + filterDto.getUrlFilterString());
+  String urlApiGecko = String.format(URL_VOLUME_CHART_BY_ID_GECKO_API, filterDto.getId());  
 
   return webClient
             .get()
@@ -141,6 +141,25 @@ public class ExchangeApiService {
             .bodyToFlux(String.class)
             .doOnError(throwable -> log.error("The service is unavailable!", throwable))
             .onErrorComplete();
+ }
+
+ public Flux<String> getVolumeChartByIdAAndRangeDate(VolumetChartByIdAndRangeDTO filterDTO) {
+
+  log.info("In service getTicketExchangeById -> " 
+              + URL_EXCHANGE_GECKO_API 
+              + URL_VOLUME_CHART_BY_RANGE_GECKO_API);
+  
+  String urlFilter = String.format(URL_VOLUME_CHART_BY_RANGE_GECKO_API, filterDTO.getId());
+
+  log.info("Value -> "+URL_EXCHANGE_GECKO_API + urlFilter + filterDTO.getUrlFilterString());
+
+  return webClient
+             .get()
+             .uri(URL_EXCHANGE_GECKO_API + urlFilter + filterDTO.getUrlFilterString())
+             .retrieve()
+             .bodyToFlux(String.class)
+             .doOnError(throwable -> log.error("The service is unavailable!", throwable))
+             .onErrorComplete();
  }
  
 }

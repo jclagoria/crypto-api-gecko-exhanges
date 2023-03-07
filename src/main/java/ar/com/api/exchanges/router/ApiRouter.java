@@ -35,6 +35,9 @@ public class ApiRouter {
  @Value("${coins.exchangeVolumeChart}")
  private String URL_EXCHANGE_MARKET_VOLUME_BY_ID_API;
 
+ @Value("${coins.exchangeVolumeChartRange}")
+ private String URL_EXCHANGE_MARKET_VOLUME_BY_ID_RANGE_DATE_API;
+
  @Bean
  public RouterFunction<ServerResponse> route(ExchangesApiHandler handler) {
 
@@ -56,6 +59,11 @@ public class ApiRouter {
                                      + URL_EXCHANGE_MARKET_VOLUME_BY_ID_API, 
                         RequestPredicates.accept(MediaType.APPLICATION_JSON), 
                         handler::getVolumeChartById)
+            .GET(URL_SERVICE_API + URL_EXCHANGE_GECKO_API 
+                                     + URL_EXCHANGE_MARKET_VOLUME_BY_ID_RANGE_DATE_API,
+                        RequestPredicates.accept(MediaType.APPLICATION_JSON),
+                        handler::getVolumeChartByIdAndRangeDate)                        
+            
             .build();
 
  }
