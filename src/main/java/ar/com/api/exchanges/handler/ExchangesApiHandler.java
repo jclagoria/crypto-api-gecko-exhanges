@@ -10,6 +10,7 @@ import ar.com.api.exchanges.dto.ExchangeDTO;
 import ar.com.api.exchanges.dto.ExchangeVolumenDTO;
 import ar.com.api.exchanges.dto.TickersByIdDTO;
 import ar.com.api.exchanges.dto.VolumeChartByIdDTO;
+import ar.com.api.exchanges.dto.VolumetChartByIdAndRangeDTO;
 import ar.com.api.exchanges.model.Exchange;
 import ar.com.api.exchanges.model.ExchangeBase;
 import ar.com.api.exchanges.model.ExchangeById;
@@ -158,6 +159,23 @@ public class ExchangesApiHandler {
                .ok()
                .body(
                     serviceExchange.getVolumeChartById(filterDTO), 
+                    String.class);
+ }
+
+ public Mono<ServerResponse> getVolumeChartByIdAndRangeDate(ServerRequest sRequest) {
+     log.info("In getVolumeChartByIdAndRangeDate");
+
+     VolumetChartByIdAndRangeDTO filterDTO = VolumetChartByIdAndRangeDTO
+                              .builder()
+                              .id(sRequest.pathVariable("idMarket"))
+                              .fromDate(sRequest.queryParam("fromDate").get())
+                              .toDate(sRequest.queryParam("toDate").get())
+                              .build();
+
+     return ServerResponse
+               .ok()
+               .body(
+                    serviceExchange.getVolumeChartByIdAAndRangeDate(filterDTO), 
                     String.class);
  }
 
