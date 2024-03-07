@@ -34,9 +34,6 @@ public class ExchangeApiService {
     @Value("${api.exchangeVolumeChart}")
     private String URL_VOLUME_CHART_BY_ID_GECKO_API;
 
-    @Value("${api.exchangeVolumeChartRange}")
-    private String URL_VOLUME_CHART_BY_RANGE_GECKO_API;
-
     private WebClient webClient;
 
     public ExchangeApiService(WebClient wClient) {

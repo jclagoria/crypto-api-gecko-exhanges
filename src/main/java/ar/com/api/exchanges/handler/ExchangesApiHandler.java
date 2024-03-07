@@ -22,24 +22,7 @@ import java.util.Optional;
 @Slf4j
 public class ExchangesApiHandler {
 
-    private CoinGeckoServiceStatus serviceStatus;
-
     private ExchangeApiService serviceExchange;
-
-    /**
-     * @param serverRequest
-     * @return
-     */
-    public Mono<ServerResponse> getStatusServiceCoinGecko(ServerRequest serverRequest) {
-
-        log.info("In getStatusServiceCoinGecko");
-
-        return ServerResponse
-                .ok()
-                .body(
-                        serviceStatus.getStatusCoinGeckoService(),
-                        Ping.class);
-    }
 
     /**
      * @param sRequest

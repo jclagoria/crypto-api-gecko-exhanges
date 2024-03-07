@@ -16,9 +16,6 @@ public class ApiRouter {
     @Value("${coins.baseURL}")
     private String URL_SERVICE_API;
 
-    @Value("${coins.healthAPI}")
-    private String URL_HEALTH_GECKO_API;
-
     @Value("${coins.exchangeList}")
     private String URL_EXCHANGE_GECKO_API;
 
@@ -34,16 +31,11 @@ public class ApiRouter {
     @Value("${coins.exchangeVolumeChart}")
     private String URL_EXCHANGE_MARKET_VOLUME_BY_ID_API;
 
-    @Value("${coins.exchangeVolumeChartRange}")
-    private String URL_EXCHANGE_MARKET_VOLUME_BY_ID_RANGE_DATE_API;
-
     @Bean
-    public RouterFunction<ServerResponse> route(ExchangesApiHandler handler) {
+    public RouterFunction<ServerResponse> routeExchange(ExchangesApiHandler handler) {
 
         return RouterFunctions
                 .route()
-                .GET(URL_SERVICE_API + URL_HEALTH_GECKO_API,
-                        handler::getStatusServiceCoinGecko)
                 .GET(URL_SERVICE_API + URL_EXCHANGE_GECKO_API,
                         RequestPredicates.accept(MediaType.APPLICATION_JSON),
                         handler::getAllExchangesCoinGecko)
@@ -59,7 +51,6 @@ public class ApiRouter {
                         RequestPredicates.accept(MediaType.APPLICATION_JSON),
                         handler::getVolumeChartById)
                 .build();
-
     }
 
 }
