@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class ExchangesApiApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ExchangesApiApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ExchangesApiApplication.class, args);
+    }
 
 }

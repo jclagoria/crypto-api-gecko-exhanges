@@ -7,16 +7,16 @@ import lombok.Getter;
 @Builder
 public class VolumeChartByIdDTO implements IFilterDTO {
 
- private String id;
- private int days;
+    private String id;
+    private int days;
 
- @Override
- public String getUrlFilterString() {
+    @Override
+    public String getUrlFilterString() {
 
-  StringBuilder urlBuilder = new StringBuilder();
-  urlBuilder.append("?days=").append(days);
+        StringBuilder urlBuilder = new StringBuilder();
+        urlBuilder.append("?days=").append(days);
 
-  return urlBuilder.toString();
- }
- 
+        return urlBuilder.toString();
+    }
+
 }
