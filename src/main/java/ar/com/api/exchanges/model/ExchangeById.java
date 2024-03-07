@@ -1,81 +1,80 @@
 package ar.com.api.exchanges.model;
 
-import java.io.Serializable;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.Data;
+
+import java.io.Serializable;
+import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ExchangeById implements Serializable {
- 
- @JsonProperty("name")
- private String name;
 
- @JsonProperty("year_established")
- private long yearEstablished;
+    @JsonProperty("name")
+    private String name;
 
- @JsonProperty("description")
- private String description;
+    @JsonProperty("year_established")
+    private long yearEstablished;
 
- @JsonProperty("url")
- private String url;
+    @JsonProperty("description")
+    private String description;
 
- @JsonProperty("image")
- private String image;
+    @JsonProperty("url")
+    private String url;
 
- @JsonProperty("facebook_url")
- private String facebookUrl;
+    @JsonProperty("image")
+    private String image;
 
- @JsonProperty("reddit_url")
- private String redditUrl;
+    @JsonProperty("facebook_url")
+    private String facebookUrl;
 
- @JsonProperty("telegram_url")
- private String telegramUrl;
+    @JsonProperty("reddit_url")
+    private String redditUrl;
 
- @JsonProperty("slack_url")
- private String slackUrl;
+    @JsonProperty("telegram_url")
+    private String telegramUrl;
 
- @JsonProperty("other_url_1")
- private String otherUrl1;
+    @JsonProperty("slack_url")
+    private String slackUrl;
 
- @JsonProperty("other_url_2")
- private String otherUrl2;
+    @JsonProperty("other_url_1")
+    private String otherUrl1;
 
- @JsonProperty("twitter_handle")
- private String twitterHandle;
+    @JsonProperty("other_url_2")
+    private String otherUrl2;
 
- @JsonProperty("has_trading_incentive")
- private boolean hasTradingIncentive;
+    @JsonProperty("twitter_handle")
+    private String twitterHandle;
 
- @JsonProperty("centralized")
- private boolean centralized;
+    @JsonProperty("has_trading_incentive")
+    private boolean hasTradingIncentive;
 
- @JsonProperty("public_notice")
- private String publicNotice;
+    @JsonProperty("centralized")
+    private boolean centralized;
 
- @JsonProperty("alert_notice")
- private String alertNotice;
+    @JsonProperty("public_notice")
+    private String publicNotice;
 
- @JsonProperty("trust_score")
- private long trustScore;
+    @JsonProperty("alert_notice")
+    private String alertNotice;
 
- @JsonProperty("trust_score_rank")
- private long trustScoreRank;
+    @JsonProperty("trust_score")
+    private long trustScore;
 
- @JsonProperty("trade_volume_24h_btc")
- private double tradeVolume24hBtc;
+    @JsonProperty("trust_score_rank")
+    private long trustScoreRank;
 
- @JsonProperty("trade_volume_24h_btc_normalized")
- private double tradeVolume24hBtcNormalized;
+    @JsonProperty("trade_volume_24h_btc")
+    private double tradeVolume24hBtc;
 
- @JsonProperty("tickers")
- private List<Ticker> tickers;
+    @JsonProperty("trade_volume_24h_btc_normalized")
+    private double tradeVolume24hBtcNormalized;
 
- @JsonProperty("status_updates")
- private List<StatusUpdate> statusUpdates;
+    @JsonProperty("tickers")
+    private List<Ticker> tickers;
+
+    @JsonProperty("status_updates")
+    private List<StatusUpdate> statusUpdates;
 
 }

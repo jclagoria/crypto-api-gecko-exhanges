@@ -1,19 +1,17 @@
 package ar.com.api.exchanges.services;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-
 import ar.com.api.exchanges.dto.ExchangeDTO;
 import ar.com.api.exchanges.dto.ExchangeVolumenDTO;
 import ar.com.api.exchanges.dto.TickersByIdDTO;
 import ar.com.api.exchanges.dto.VolumeChartByIdDTO;
-import ar.com.api.exchanges.dto.VolumetChartByIdAndRangeDTO;
 import ar.com.api.exchanges.model.Exchange;
 import ar.com.api.exchanges.model.ExchangeBase;
 import ar.com.api.exchanges.model.ExchangeById;
 import ar.com.api.exchanges.model.TickersById;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -21,145 +19,89 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class ExchangeApiService {
 
- @Value("${api.exchangeList}")
- private String URL_EXCHANGE_GECKO_API;
- 
- @Value("${api.exchangeListMarket}")
- private String URL_EXCHANGE_LIST_GECKO_API;
+    @Value("${api.exchangeList}")
+    private String URL_EXCHANGE_GECKO_API;
 
- @Value("${api.exchangeById}")
- private String URL_EXCHANGE_BY_ID_GECKO_API;
+    @Value("${api.exchangeListMarket}")
+    private String URL_EXCHANGE_LIST_GECKO_API;
 
- @Value("${api.exchangeTickerById}")
- private String URL_TICKER_EXCHANGE_BY_ID_GECKO_API;
+    @Value("${api.exchangeById}")
+    private String URL_EXCHANGE_BY_ID_GECKO_API;
 
- @Value("${api.exchangeVolumeChart}")
- private String URL_VOLUME_CHART_BY_ID_GECKO_API;
+    @Value("${api.exchangeTickerById}")
+    private String URL_TICKER_EXCHANGE_BY_ID_GECKO_API;
 
- @Value("${api.exchangeVolumeChartRange}")
- private String URL_VOLUME_CHART_BY_RANGE_GECKO_API;
- 
- private WebClient webClient;
+    @Value("${api.exchangeVolumeChart}")
+    private String URL_VOLUME_CHART_BY_ID_GECKO_API;
 
- public ExchangeApiService(WebClient wClient) {
-  this.webClient = wClient;
- }
+    private WebClient webClient;
 
- /**
-  * 
-  * @param filterDTO
-  * @return
-  */
- public Flux<Exchange> getAllExchanges(ExchangeDTO filterDTO) { 
+    public ExchangeApiService(WebClient wClient) {
+        this.webClient = wClient;
+    }
 
-  log.info("In service getAllExchanges " + URL_EXCHANGE_GECKO_API + filterDTO.getUrlFilterString());
+    /**
+     * @param filterDTO
+     * @return
+     */
+    public Flux<Exchange> getAllExchanges(ExchangeDTO filterDTO) {
 
-  return webClient 
-            .get()
-            .uri(URL_EXCHANGE_GECKO_API + filterDTO.getUrlFilterString())
-            .retrieve()
-            .bodyToFlux(Exchange.class)
-            .doOnError(throwable -> log.error("The service is unavailable!", throwable))
-            .onErrorComplete();
- }
+        log.info("In service getAllExchanges " + URL_EXCHANGE_GECKO_API + filterDTO.getUrlFilterString());
 
- /**
-  * 
-  * @return
-  */
- public Flux<ExchangeBase> getAllSupportedMarkets() {
+        return null;
+    }
 
-  log.info("In service getAllSupportedMarkets -> " 
-               + URL_EXCHANGE_GECKO_API 
-               + URL_EXCHANGE_LIST_GECKO_API);
+    /**
+     * @return
+     */
+    public Flux<ExchangeBase> getAllSupportedMarkets() {
 
-  return webClient
-             .get()
-             .uri(URL_EXCHANGE_GECKO_API + URL_EXCHANGE_LIST_GECKO_API)
-             .retrieve()
-             .bodyToFlux(ExchangeBase.class)
-             .doOnError(throwable -> log.error("The service is unavailable!", throwable))
-            .onErrorComplete();
- }
+        log.info("In service getAllSupportedMarkets -> "
+                + URL_EXCHANGE_GECKO_API
+                + URL_EXCHANGE_LIST_GECKO_API);
 
- /**
-  * 
-  * @param filterDTO
-  * @return
-  */
- public Mono<ExchangeById> getExchangeVolumenById(ExchangeVolumenDTO filterDTO) {
+        return null;
+    }
 
-  log.info("In service getExchangeVolumenById -> " 
-              + URL_EXCHANGE_GECKO_API 
-              + URL_EXCHANGE_BY_ID_GECKO_API);
-  
-  String idMarket = String.format(URL_EXCHANGE_BY_ID_GECKO_API, filterDTO.getId()); 
+    /**
+     * @param filterDTO
+     * @return
+     */
+    public Mono<ExchangeById> getExchangeVolumenById(ExchangeVolumenDTO filterDTO) {
 
-  return webClient
-            .get()
-            .uri(URL_EXCHANGE_GECKO_API + idMarket)
-            .retrieve()
-            .bodyToMono(ExchangeById.class)
-            .doOnError(throwable -> log.error("The service is unavailable!", throwable))
-            .onErrorComplete();
- }
+        log.info("In service getExchangeVolumenById -> "
+                + URL_EXCHANGE_GECKO_API
+                + URL_EXCHANGE_BY_ID_GECKO_API);
 
- /**
-  * 
-  * @param filterDTO
-  * @return
-  */
- public Mono<TickersById> getTicketExchangeById(TickersByIdDTO filterDTO) {
+        String idMarket = String.format(URL_EXCHANGE_BY_ID_GECKO_API, filterDTO.getId());
 
-  log.info("In service getTicketExchangeById -> " 
-              + URL_EXCHANGE_GECKO_API 
-              + URL_TICKER_EXCHANGE_BY_ID_GECKO_API);
-  
-  String urlFilter = String.format(URL_TICKER_EXCHANGE_BY_ID_GECKO_API, filterDTO.getId());  
+        return null;
+    }
 
-  return webClient
-           .get()
-           .uri(URL_EXCHANGE_GECKO_API + urlFilter + filterDTO.getUrlFilterString())
-           .retrieve()
-           .bodyToMono(TickersById.class)
-           .doOnError(throwable -> log.error("The service is unavailable!", throwable))
-           .onErrorComplete();
- }
+    /**
+     * @param filterDTO
+     * @return
+     */
+    public Mono<TickersById> getTicketExchangeById(TickersByIdDTO filterDTO) {
 
- public Flux<String> getVolumeChartById(VolumeChartByIdDTO filterDto) {
+        log.info("In service getTicketExchangeById -> "
+                + URL_EXCHANGE_GECKO_API
+                + URL_TICKER_EXCHANGE_BY_ID_GECKO_API);
 
-  log.info("In service getTicketExchangeById -> " 
-              + URL_EXCHANGE_GECKO_API 
-              + URL_VOLUME_CHART_BY_ID_GECKO_API);
-         
-  String urlApiGecko = String.format(URL_VOLUME_CHART_BY_ID_GECKO_API, filterDto.getId());  
+        String urlFilter = String.format(URL_TICKER_EXCHANGE_BY_ID_GECKO_API, filterDTO.getId());
 
-  return webClient
-            .get()
-            .uri(URL_EXCHANGE_GECKO_API + urlApiGecko + filterDto.getUrlFilterString())
-            .retrieve()
-            .bodyToFlux(String.class)
-            .doOnError(throwable -> log.error("The service is unavailable!", throwable))
-            .onErrorComplete();
- }
+        return null;
+    }
 
- public Flux<String> getVolumeChartByIdAAndRangeDate(VolumetChartByIdAndRangeDTO filterDTO) {
+    public Flux<String> getVolumeChartById(VolumeChartByIdDTO filterDto) {
 
-  log.info("In service getTicketExchangeById -> " 
-              + URL_EXCHANGE_GECKO_API 
-              + URL_VOLUME_CHART_BY_RANGE_GECKO_API);
-  
-  String urlFilter = String.format(URL_VOLUME_CHART_BY_RANGE_GECKO_API, filterDTO.getId());
+        log.info("In service getTicketExchangeById -> "
+                + URL_EXCHANGE_GECKO_API
+                + URL_VOLUME_CHART_BY_ID_GECKO_API);
 
-  log.info("Value -> "+URL_EXCHANGE_GECKO_API + urlFilter + filterDTO.getUrlFilterString());
+        String urlApiGecko = String.format(URL_VOLUME_CHART_BY_ID_GECKO_API, filterDto.getId());
 
-  return webClient
-             .get()
-             .uri(URL_EXCHANGE_GECKO_API + urlFilter + filterDTO.getUrlFilterString())
-             .retrieve()
-             .bodyToFlux(String.class)
-             .doOnError(throwable -> log.error("The service is unavailable!", throwable))
-             .onErrorComplete();
- }
- 
+        return null;
+    }
+
 }
