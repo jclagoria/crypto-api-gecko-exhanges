@@ -1,30 +1,29 @@
 package ar.com.api.exchanges.services;
 
+import ar.com.api.exchanges.configuration.ExternalServerConfig;
+import ar.com.api.exchanges.configuration.HttpServiceCall;
 import ar.com.api.exchanges.model.Ping;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
 public class CoinGeckoServiceStatus {
 
-    @Value("${api.ping}")
-    private String URL_PING_SERVICE;
+    private final HttpServiceCall httpServiceCall;
+    private final ExternalServerConfig externalServerConfig;
 
-    private WebClient webClient;
-
-    public CoinGeckoServiceStatus(WebClient webClient) {
-        this.webClient = webClient;
+    public CoinGeckoServiceStatus(HttpServiceCall serviceCall, ExternalServerConfig serverConfig) {
+        this.httpServiceCall = serviceCall;
+        this.externalServerConfig = serverConfig;
     }
 
     public Mono<Ping> getStatusCoinGeckoService() {
 
-        log.info("Calling method: ", URL_PING_SERVICE);
+        log.info("Calling EndPint on GeckoAPI: {}", externalServerConfig.getPing());
 
-        return null;
+        return httpServiceCall.getMonoObject(externalServerConfig.getPing(), Ping.class);
     }
 
 }
