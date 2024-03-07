@@ -24,12 +24,7 @@ public class CoinGeckoServiceStatus {
 
         log.info("Calling method: ", URL_PING_SERVICE);
 
-        return webClient
-                .get()
-                .uri(URL_PING_SERVICE)
-                .retrieve()
-                .bodyToMono(Ping.class)
-                .doOnError(throwable -> log.error("The service is unavailable!", throwable));
+        return null;
     }
 
 }

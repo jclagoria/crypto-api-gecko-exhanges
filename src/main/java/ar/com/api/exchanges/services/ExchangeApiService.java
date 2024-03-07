@@ -48,13 +48,7 @@ public class ExchangeApiService {
 
         log.info("In service getAllExchanges " + URL_EXCHANGE_GECKO_API + filterDTO.getUrlFilterString());
 
-        return webClient
-                .get()
-                .uri(URL_EXCHANGE_GECKO_API + filterDTO.getUrlFilterString())
-                .retrieve()
-                .bodyToFlux(Exchange.class)
-                .doOnError(throwable -> log.error("The service is unavailable!", throwable))
-                .onErrorComplete();
+        return null;
     }
 
     /**
@@ -66,13 +60,7 @@ public class ExchangeApiService {
                 + URL_EXCHANGE_GECKO_API
                 + URL_EXCHANGE_LIST_GECKO_API);
 
-        return webClient
-                .get()
-                .uri(URL_EXCHANGE_GECKO_API + URL_EXCHANGE_LIST_GECKO_API)
-                .retrieve()
-                .bodyToFlux(ExchangeBase.class)
-                .doOnError(throwable -> log.error("The service is unavailable!", throwable))
-                .onErrorComplete();
+        return null;
     }
 
     /**
@@ -87,13 +75,7 @@ public class ExchangeApiService {
 
         String idMarket = String.format(URL_EXCHANGE_BY_ID_GECKO_API, filterDTO.getId());
 
-        return webClient
-                .get()
-                .uri(URL_EXCHANGE_GECKO_API + idMarket)
-                .retrieve()
-                .bodyToMono(ExchangeById.class)
-                .doOnError(throwable -> log.error("The service is unavailable!", throwable))
-                .onErrorComplete();
+        return null;
     }
 
     /**
@@ -108,13 +90,7 @@ public class ExchangeApiService {
 
         String urlFilter = String.format(URL_TICKER_EXCHANGE_BY_ID_GECKO_API, filterDTO.getId());
 
-        return webClient
-                .get()
-                .uri(URL_EXCHANGE_GECKO_API + urlFilter + filterDTO.getUrlFilterString())
-                .retrieve()
-                .bodyToMono(TickersById.class)
-                .doOnError(throwable -> log.error("The service is unavailable!", throwable))
-                .onErrorComplete();
+        return null;
     }
 
     public Flux<String> getVolumeChartById(VolumeChartByIdDTO filterDto) {
@@ -125,13 +101,7 @@ public class ExchangeApiService {
 
         String urlApiGecko = String.format(URL_VOLUME_CHART_BY_ID_GECKO_API, filterDto.getId());
 
-        return webClient
-                .get()
-                .uri(URL_EXCHANGE_GECKO_API + urlApiGecko + filterDto.getUrlFilterString())
-                .retrieve()
-                .bodyToFlux(String.class)
-                .doOnError(throwable -> log.error("The service is unavailable!", throwable))
-                .onErrorComplete();
+        return null;
     }
 
 }
