@@ -1,5 +1,6 @@
 package ar.com.api.exchanges.router;
 
+import ar.com.api.exchanges.configuration.ApiServiceConfig;
 import ar.com.api.exchanges.handler.ExchangesApiHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -11,43 +12,34 @@ import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 @Configuration
-public class ApiRouter {
+public class ExchangeApiRouter {
 
-    @Value("${coins.baseURL}")
-    private String URL_SERVICE_API;
+    private final ApiServiceConfig apiServiceConfig;
 
-    @Value("${coins.exchangeList}")
-    private String URL_EXCHANGE_GECKO_API;
-
-    @Value("${coins.exchangeListMarket}")
-    private String URL_EXCHANGE_LIST_MARKET_API;
-
-    @Value("${coins.exchangeById}")
-    private String URL_EXCHANGE_VOLUMN_DATA_BY_ID_API;
-
-    @Value("${coins.exchangeTickerById}")
-    private String URL_EXCHANGE_TICKER_BY_ID_API;
-
-    @Value("${coins.exchangeVolumeChart}")
-    private String URL_EXCHANGE_MARKET_VOLUME_BY_ID_API;
+    public ExchangeApiRouter(ApiServiceConfig serviceConfig) {
+        this.apiServiceConfig = serviceConfig;
+    }
 
     @Bean
     public RouterFunction<ServerResponse> routeExchange(ExchangesApiHandler handler) {
 
         return RouterFunctions
                 .route()
-                .GET(URL_SERVICE_API + URL_EXCHANGE_GECKO_API,
+                .GET(apiServiceConfig.getBaseURL() + apiServiceConfig.getExchangeList(),
                         RequestPredicates.accept(MediaType.APPLICATION_JSON),
                         handler::getAllExchangesCoinGecko)
-                .GET(URL_SERVICE_API + URL_EXCHANGE_GECKO_API + URL_EXCHANGE_LIST_MARKET_API,
+                .GET(apiServiceConfig.getBaseURL() + apiServiceConfig.getExchangeList()
+                                + apiServiceConfig.getExchangeListMarket(),
                         handler::getAllExchangeMarketData)
-                .GET(URL_SERVICE_API + URL_EXCHANGE_GECKO_API + URL_EXCHANGE_VOLUMN_DATA_BY_ID_API,
+                .GET(apiServiceConfig.getBaseURL() + apiServiceConfig.getExchangeList()
+                                + apiServiceConfig.getExchangeById(),
                         handler::getExchangeVolumenDataById)
-                .GET(URL_SERVICE_API + URL_EXCHANGE_GECKO_API + URL_EXCHANGE_TICKER_BY_ID_API,
+                .GET(apiServiceConfig.getBaseURL() + apiServiceConfig.getExchangeList()
+                                + apiServiceConfig.getExchangeTickerById(),
                         RequestPredicates.accept(MediaType.APPLICATION_JSON),
                         handler::getTickerExchangeById)
-                .GET(URL_SERVICE_API + URL_EXCHANGE_GECKO_API
-                                + URL_EXCHANGE_MARKET_VOLUME_BY_ID_API,
+                .GET(apiServiceConfig.getBaseURL() + apiServiceConfig.getExchangeList()
+                                + apiServiceConfig.getExchangeVolumeChart(),
                         RequestPredicates.accept(MediaType.APPLICATION_JSON),
                         handler::getVolumeChartById)
                 .build();

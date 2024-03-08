@@ -1,5 +1,7 @@
 package ar.com.api.exchanges.services;
 
+import ar.com.api.exchanges.configuration.ExternalServerConfig;
+import ar.com.api.exchanges.configuration.HttpServiceCall;
 import ar.com.api.exchanges.dto.ExchangeDTO;
 import ar.com.api.exchanges.dto.ExchangeVolumenDTO;
 import ar.com.api.exchanges.dto.TickersByIdDTO;
@@ -19,25 +21,12 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class ExchangeApiService {
 
-    @Value("${api.exchangeList}")
-    private String URL_EXCHANGE_GECKO_API;
+    private final HttpServiceCall httpServiceCall;
+    private final ExternalServerConfig externalServerConfig;
 
-    @Value("${api.exchangeListMarket}")
-    private String URL_EXCHANGE_LIST_GECKO_API;
-
-    @Value("${api.exchangeById}")
-    private String URL_EXCHANGE_BY_ID_GECKO_API;
-
-    @Value("${api.exchangeTickerById}")
-    private String URL_TICKER_EXCHANGE_BY_ID_GECKO_API;
-
-    @Value("${api.exchangeVolumeChart}")
-    private String URL_VOLUME_CHART_BY_ID_GECKO_API;
-
-    private WebClient webClient;
-
-    public ExchangeApiService(WebClient wClient) {
-        this.webClient = wClient;
+    public ExchangeApiService(HttpServiceCall serviceCall, ExternalServerConfig serverConfig) {
+        this.httpServiceCall = serviceCall;
+        this.externalServerConfig = serverConfig;
     }
 
     /**
@@ -45,10 +34,11 @@ public class ExchangeApiService {
      * @return
      */
     public Flux<Exchange> getAllExchanges(ExchangeDTO filterDTO) {
+        log.info("In service getAllExchanges {} ", externalServerConfig.getExchangeList()
+                + filterDTO.getUrlFilterString());
 
-        log.info("In service getAllExchanges " + URL_EXCHANGE_GECKO_API + filterDTO.getUrlFilterString());
-
-        return null;
+        return httpServiceCall.getFluxObject(externalServerConfig.getExchangeList()
+                + filterDTO.getUrlFilterString(), Exchange.class);
     }
 
     /**
@@ -56,9 +46,8 @@ public class ExchangeApiService {
      */
     public Flux<ExchangeBase> getAllSupportedMarkets() {
 
-        log.info("In service getAllSupportedMarkets -> "
-                + URL_EXCHANGE_GECKO_API
-                + URL_EXCHANGE_LIST_GECKO_API);
+        log.info("In service getAllSupportedMarkets {} ",
+                externalServerConfig.getExchangeById() + externalServerConfig.getExchangeListMarket());
 
         return null;
     }
@@ -68,12 +57,10 @@ public class ExchangeApiService {
      * @return
      */
     public Mono<ExchangeById> getExchangeVolumenById(ExchangeVolumenDTO filterDTO) {
+        log.info("In service getExchangeVolumenById {}",
+                externalServerConfig.getExchangeList() + externalServerConfig.getExchangeListMarket());
 
-        log.info("In service getExchangeVolumenById -> "
-                + URL_EXCHANGE_GECKO_API
-                + URL_EXCHANGE_BY_ID_GECKO_API);
-
-        String idMarket = String.format(URL_EXCHANGE_BY_ID_GECKO_API, filterDTO.getId());
+        String idMarket = String.format(externalServerConfig.getExchangeListMarket(), filterDTO.getId());
 
         return null;
     }
@@ -83,23 +70,20 @@ public class ExchangeApiService {
      * @return
      */
     public Mono<TickersById> getTicketExchangeById(TickersByIdDTO filterDTO) {
+        log.info("In service getTicketExchangeById {} ",
+                externalServerConfig.getExchangeList() + externalServerConfig.getExchangeTickerById());
 
-        log.info("In service getTicketExchangeById -> "
-                + URL_EXCHANGE_GECKO_API
-                + URL_TICKER_EXCHANGE_BY_ID_GECKO_API);
-
-        String urlFilter = String.format(URL_TICKER_EXCHANGE_BY_ID_GECKO_API, filterDTO.getId());
+        String urlFilter = String.format(externalServerConfig.getExchangeTickerById(), filterDTO.getId());
 
         return null;
     }
 
     public Flux<String> getVolumeChartById(VolumeChartByIdDTO filterDto) {
 
-        log.info("In service getTicketExchangeById -> "
-                + URL_EXCHANGE_GECKO_API
-                + URL_VOLUME_CHART_BY_ID_GECKO_API);
+        log.info("In service getTicketExchangeById {}"
+                ,externalServerConfig.getExchangeList() + externalServerConfig.getExchangeVolumeChart());
 
-        String urlApiGecko = String.format(URL_VOLUME_CHART_BY_ID_GECKO_API, filterDto.getId());
+        String urlApiGecko = String.format(externalServerConfig.getExchangeVolumeChart(), filterDto.getId());
 
         return null;
     }
