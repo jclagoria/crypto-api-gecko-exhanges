@@ -17,13 +17,10 @@ public class ExchangeDTO implements IFilterDTO {
     public String getUrlFilterString() {
 
         StringBuilder urlBuilder = new StringBuilder();
+        urlBuilder.append("?per_page=").append(perPage.orElse(100));
 
-        if (perPage.isPresent())
-            urlBuilder.append("?per_page=").append(perPage.get());
-
-        if (page.isPresent())
-            urlBuilder.append("&page=").append(page.get());
-
+        this.getPage().ifPresent(pageNum -> urlBuilder.
+                append("&page=").append(pageNum));
 
         return urlBuilder.toString();
     }

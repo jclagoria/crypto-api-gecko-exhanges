@@ -51,7 +51,7 @@ public class HttpServiceCall {
                                 .flatMap(errorMessage ->
                                         handleResponseError(errorMessage,
                                                 (HttpStatus) clientResponse.statusCode(),
-                                                ErrorTypeEnum.GECKO_CLIENT__ERROR))
+                                                ErrorTypeEnum.GECKO_CLIENT_ERROR))
                 )
                 .onStatus(
                         HttpStatusCode::is5xxServerError,

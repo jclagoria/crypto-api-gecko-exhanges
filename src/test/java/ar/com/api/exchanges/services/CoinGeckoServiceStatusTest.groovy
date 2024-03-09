@@ -49,7 +49,7 @@ class CoinGeckoServiceStatusTest extends Specification {
     def "CoinGeckoServiceStatus should handle 4xx client error gracefully"() {
         given: "A mock setup HttServiceCall and ExternalServerConfig with a 4xx client error"
         def expectedApiClientError = new ApiServeErrorrException("Client error occurred", "Bad Request",
-                ErrorTypeEnum.GECKO_CLIENT__ERROR, HttpStatus.BAD_REQUEST)
+                ErrorTypeEnum.GECKO_CLIENT_ERROR, HttpStatus.BAD_REQUEST)
         httpServiceCallMock.getMonoObject("pingURLEndPointMock", Ping.class)
                 >> Mono.error(expectedApiClientError)
 
@@ -69,7 +69,7 @@ class CoinGeckoServiceStatusTest extends Specification {
     def "CoinGeckoServiceStatus should handle 5xx client error gracefully"() {
         given: "A mock setup HttServiceCall and ExternalServerConfig with a 4xx client error"
         def expectedApiClientError = new ApiServeErrorrException("Client error occurred", "Bad Request",
-                ErrorTypeEnum.GECKO_CLIENT__ERROR, HttpStatus.BAD_REQUEST)
+                ErrorTypeEnum.GECKO_CLIENT_ERROR, HttpStatus.BAD_REQUEST)
         httpServiceCallMock.getMonoObject("pingURLEndPointMock", Ping.class)
                 >> Mono.error(expectedApiClientError)
 
