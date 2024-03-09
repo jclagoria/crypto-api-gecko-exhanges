@@ -1,15 +1,20 @@
 package ar.com.api.exchanges.handler;
 
-import ar.com.api.exchanges.dto.ExchangeDTO;
 import ar.com.api.exchanges.dto.ExchangeVolumenDTO;
 import ar.com.api.exchanges.dto.TickersByIdDTO;
 import ar.com.api.exchanges.dto.VolumeChartByIdDTO;
-import ar.com.api.exchanges.model.*;
-import ar.com.api.exchanges.services.CoinGeckoServiceStatus;
+import ar.com.api.exchanges.enums.ErrorTypeEnum;
+import ar.com.api.exchanges.exception.ApiClientErrorException;
+import ar.com.api.exchanges.handler.utilities.MapperHandler;
+import ar.com.api.exchanges.model.ExchangeBase;
+import ar.com.api.exchanges.model.ExchangeById;
+import ar.com.api.exchanges.model.TickersById;
 import ar.com.api.exchanges.services.ExchangeApiService;
 import ar.com.api.exchanges.utils.StringToInteger;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -32,26 +37,20 @@ public class ExchangesApiHandler {
 
         log.info("In getAllExchangesCoinGecko");
 
-        Optional<Integer> optPerPage = Optional.empty();
-
-        if (sRequest.queryParam("perPage").isPresent()) {
-            optPerPage = Optional
-                    .of(sRequest.queryParam("perPage")
-                            .get()
-                            .transform(StringToInteger.INSTANCE));
-        }
-
-        ExchangeDTO filterDto = ExchangeDTO
-                .builder()
-                .perPage(optPerPage)
-                .page(sRequest.queryParam("page"))
-                .build();
-
-        return ServerResponse
-                .ok()
-                .body(
-                        serviceExchange.getAllExchanges(filterDto),
-                        Exchange.class);
+        return Mono.just(sRequest)
+                .map(MapperHandler::createExchangeDTOFromRequest)
+                .flatMapMany(serviceExchange::getAllExchanges)
+                .collectList()
+                .flatMap(exchanges -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON).bodyValue(exchanges)
+                ).switchIfEmpty(ServerResponse.notFound().build())
+                .doOnSubscribe(subscription -> log.info("Retrieving list of Exchanges"))
+                .onErrorResume(error -> Mono
+                        .error(new ApiClientErrorException(
+                                "An unexpected error occurred in getAllExchangesCoinGecko",
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                ErrorTypeEnum.API_SERVER_ERROR
+                        )));
     }
 
     /**
