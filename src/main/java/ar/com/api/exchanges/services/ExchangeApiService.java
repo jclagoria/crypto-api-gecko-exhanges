@@ -3,7 +3,7 @@ package ar.com.api.exchanges.services;
 import ar.com.api.exchanges.configuration.ExternalServerConfig;
 import ar.com.api.exchanges.configuration.HttpServiceCall;
 import ar.com.api.exchanges.dto.ExchangeDTO;
-import ar.com.api.exchanges.dto.ExchangeVolumenDTO;
+import ar.com.api.exchanges.dto.ExchangeVolumeDTO;
 import ar.com.api.exchanges.dto.TickersByIdDTO;
 import ar.com.api.exchanges.dto.VolumeChartByIdDTO;
 import ar.com.api.exchanges.model.Exchange;
@@ -55,8 +55,8 @@ public class ExchangeApiService {
      * @param filterDTO
      * @return
      */
-    public Mono<ExchangeById> getExchangeVolumenById(ExchangeVolumenDTO filterDTO) {
-        log.info("In service getExchangeVolumenById {}",
+    public Mono<ExchangeById> getExchangeVolumesById(ExchangeVolumeDTO filterDTO) {
+        log.info("In service getExchangeVolumesById {}",
                 externalServerConfig.getExchangeList() + externalServerConfig.getExchangeById());
 
         String idMarket = String.format(externalServerConfig.getExchangeById(), filterDTO.getId());

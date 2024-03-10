@@ -1,7 +1,7 @@
 package ar.com.api.exchanges.configuration;
 
 import ar.com.api.exchanges.enums.ErrorTypeEnum;
-import ar.com.api.exchanges.exception.ApiServeErrorrException;
+import ar.com.api.exchanges.exception.ApiServeErrorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -37,7 +37,7 @@ public class HttpServiceCall {
     }
 
     private <T> Mono<T> handleError(Throwable throwable) {
-        return Mono.error(throwable instanceof ApiServeErrorrException ?
+        return Mono.error(throwable instanceof ApiServeErrorException ?
                 throwable : new Exception("General Error", throwable));
     }
     private WebClient.ResponseSpec configureResponseSpec(String urlEndPoint) {
@@ -63,11 +63,11 @@ public class HttpServiceCall {
                 );
     }
 
-    private Mono<ApiServeErrorrException> handleResponseError(Map<String, Object> errorMessage,
-                                                              HttpStatus status,
-                                                              ErrorTypeEnum typeEnum) {
+    private Mono<ApiServeErrorException> handleResponseError(Map<String, Object> errorMessage,
+                                                             HttpStatus status,
+                                                             ErrorTypeEnum typeEnum) {
         String errorBody = (String) errorMessage.getOrDefault("error", "Unknown error");
-        return Mono.error(new ApiServeErrorrException("Error occurred", errorBody, typeEnum, status));
+        return Mono.error(new ApiServeErrorException("Error occurred", errorBody, typeEnum, status));
     }
 
 }

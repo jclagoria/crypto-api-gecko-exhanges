@@ -2,7 +2,6 @@ package ar.com.api.exchanges.router;
 
 import ar.com.api.exchanges.configuration.ApiServiceConfig;
 import ar.com.api.exchanges.handler.ExchangesApiHandler;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -33,7 +32,7 @@ public class ExchangeApiRouter {
                         handler::getAllExchangeMarketData)
                 .GET(apiServiceConfig.getBaseURL() + apiServiceConfig.getExchangeList()
                                 + apiServiceConfig.getExchangeById(),
-                        handler::getExchangeVolumenDataById)
+                        handler::getExchangeVolumeDataById)
                 .GET(apiServiceConfig.getBaseURL() + apiServiceConfig.getExchangeList()
                                 + apiServiceConfig.getExchangeTickerById(),
                         RequestPredicates.accept(MediaType.APPLICATION_JSON),

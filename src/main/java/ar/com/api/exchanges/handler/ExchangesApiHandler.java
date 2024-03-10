@@ -1,16 +1,16 @@
 package ar.com.api.exchanges.handler;
 
-import ar.com.api.exchanges.dto.ExchangeVolumenDTO;
+import ar.com.api.exchanges.dto.ExchangeVolumeDTO;
 import ar.com.api.exchanges.dto.TickersByIdDTO;
 import ar.com.api.exchanges.dto.VolumeChartByIdDTO;
 import ar.com.api.exchanges.enums.ErrorTypeEnum;
 import ar.com.api.exchanges.exception.ApiClientErrorException;
 import ar.com.api.exchanges.handler.utilities.MapperHandler;
-import ar.com.api.exchanges.model.ExchangeBase;
 import ar.com.api.exchanges.model.ExchangeById;
 import ar.com.api.exchanges.model.TickersById;
 import ar.com.api.exchanges.services.ExchangeApiService;
 import ar.com.api.exchanges.utils.StringToInteger;
+import ar.com.api.exchanges.validators.ValidatorOfCTOComponent;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,7 +27,8 @@ import java.util.Optional;
 @Slf4j
 public class ExchangesApiHandler {
 
-    private ExchangeApiService serviceExchange;
+    private final ExchangeApiService serviceExchange;
+    private final ValidatorOfCTOComponent validatorComponent;
 
     /**
      * @param sRequest
@@ -77,20 +78,23 @@ public class ExchangesApiHandler {
      * @param sRequest
      * @return
      */
-    public Mono<ServerResponse> getExchangeVolumenDataById(ServerRequest sRequest) {
+    public Mono<ServerResponse> getExchangeVolumeDataById(ServerRequest sRequest) {
+        log.info("Fetching Exchange Volume Data by Market ID from CoinGecko API");
 
-        log.info("In getExchangeVolumenDataById");
-
-        ExchangeVolumenDTO filterDTO = ExchangeVolumenDTO
-                .builder()
-                .id(sRequest.pathVariable("idMarket"))
-                .build();
-
-        return ServerResponse
-                .ok()
-                .body(
-                        serviceExchange.getExchangeVolumenById(filterDTO),
-                        ExchangeById.class);
+        return Mono.just(sRequest)
+                .flatMap(MapperHandler::createExchangeVolumeDTOFromRequest)
+                .flatMap(validatorComponent::validation)
+                .flatMap(serviceExchange::getExchangeVolumesById)
+                .flatMap(exchangeVolume -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(exchangeVolume))
+                .switchIfEmpty(ServerResponse.notFound().build())
+                .doOnSubscribe(subscription -> log.info("Retrieving Exchange Info by Market ID"))
+                .onErrorResume(error -> Mono.error(
+                        new ApiClientErrorException("An unexpected error occurred in getExchangeVolumeDataById",
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                ErrorTypeEnum.API_SERVER_ERROR)
+                ));
     }
 
     public Mono<ServerResponse> getTickerExchangeById(ServerRequest sRequest) {

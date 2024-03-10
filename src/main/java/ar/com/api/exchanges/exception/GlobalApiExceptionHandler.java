@@ -46,9 +46,9 @@ public class GlobalApiExceptionHandler {
                 ));
     }
 
-    @ExceptionHandler(ApiServeErrorrException.class)
+    @ExceptionHandler(ApiServeErrorException.class)
     public Mono<Void> handleServerErrorRequestException(ServerWebExchange serverWebExchange,
-                                                        ApiServeErrorrException apiServeErrorrException)
+                                                        ApiServeErrorException apiServeErrorrException)
             throws JsonProcessingException {
 
         log.error("An ApiServerErrorException occurred {}", apiServeErrorrException.getMessage());
