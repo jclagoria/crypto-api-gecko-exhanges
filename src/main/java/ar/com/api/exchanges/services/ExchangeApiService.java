@@ -75,7 +75,8 @@ public class ExchangeApiService {
 
         String urlFilter = String.format(externalServerConfig.getExchangeTickerById(), filterDTO.getId());
 
-        return null;
+        return httpServiceCall.getMonoObject(externalServerConfig.getExchangeList() + urlFilter,
+                TickersById.class);
     }
 
     public Flux<String> getVolumeChartById(VolumeChartByIdDTO filterDto) {
