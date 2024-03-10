@@ -38,8 +38,8 @@ class ExchangesApiHandlerTest extends Specification {
         given: "Mocked service with a list of Exchanges"
         def expectedListOfExchanges = Instancio.ofList(Exchange.class).
                 size(3).create()
-        serverRequestMock.queryParam(_) >> Optional.of("150")
-        serverRequestMock.queryParam(_) >> Optional.of("1")
+        serverRequestMock.queryParam(_ as String) >> Optional.of("150")
+        serverRequestMock.queryParam(_ as String) >> Optional.of("1")
         exchangeApiServiceMock.getAllExchanges(_ as ExchangeDTO)
                 >> Flux.just(expectedListOfExchanges)
 
@@ -57,9 +57,9 @@ class ExchangesApiHandlerTest extends Specification {
 
     def "getAllExchangeCOinGecko returns not found when no exchanges return form the API Service"() {
         given: "A mock server request and an empty list of exchanges"
-        serverRequestMock.queryParam(_) >> Optional.of("100")
-        serverRequestMock.queryParam(_) >> Optional.of("2")
-        exchangeApiServiceMock.getAllExchanges(_) >> Flux.empty()
+        serverRequestMock.queryParam(_ as String) >> Optional.of("100")
+        serverRequestMock.queryParam(_ as String) >> Optional.of("2")
+        exchangeApiServiceMock.getAllExchanges(_ as ExchangeDTO) >> Flux.empty()
 
         when: "getAllExchangesCoinGecko is called"
         def responseActualResponse = exchangesApiHandler.getAllExchangesCoinGecko(serverRequestMock)
@@ -74,9 +74,10 @@ class ExchangesApiHandlerTest extends Specification {
 
     def "getAllExchangeCoinGecko handles error gracefully"() {
         given: "A mock server request and an error"
-        serverRequestMock.queryParam(_) >> Optional.of("100")
-        serverRequestMock.queryParam(_) >> Optional.of("2")
-        exchangeApiServiceMock.getAllExchanges(_) >> Flux.error(new RuntimeException("An error occurred"))
+        serverRequestMock.queryParam(_ as String) >> Optional.of("100")
+        serverRequestMock.queryParam(_ as String) >> Optional.of("2")
+        exchangeApiServiceMock.getAllExchanges(_ as ExchangeDTO) >>
+                Flux.error(new RuntimeException("An error occurred"))
 
         when: "getAllExchangesCoinGecko called"
         def responseActualResponse = exchangesApiHandler.getAllExchangesCoinGecko(serverRequestMock)
