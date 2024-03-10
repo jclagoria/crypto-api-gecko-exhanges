@@ -4,6 +4,7 @@ import ar.com.api.exchanges.dto.ExchangeDTO
 import ar.com.api.exchanges.enums.ErrorTypeEnum
 import ar.com.api.exchanges.exception.ApiClientErrorException
 import ar.com.api.exchanges.model.Exchange
+import ar.com.api.exchanges.model.ExchangeBase
 import ar.com.api.exchanges.services.ExchangeApiService
 import org.instancio.Instancio
 import org.springframework.http.HttpStatus
@@ -84,5 +85,37 @@ class ExchangesApiHandlerTest extends Specification {
                 .verify()
     }
 
+    def "GetAllExchangeMarketData return successfully a ServerResponse with HttpStatus Ok"() {
+        given: "Mocked service with a list of Exchanges supported"
+        def expectedListExchanges = Instancio.ofList(ExchangeBase.class).size(5).create()
+        exchangeApiServiceMock.getAllSupportedMarkets() >> Flux.just(expectedListExchanges)
+
+        when: "GetAllExchangeMarketData is called and return successfully ServerResponse"
+        def actualResponseObject = exchangesApiHandler.getAllExchangeMarketData(serverRequestMock)
+
+        then: "It returns a ServerResponse with the list of Exchanges"
+        StepVerifier.create(actualResponseObject)
+                .expectNextMatches {serverResponse ->
+                    serverResponse.statusCode().is2xxSuccessful() &&
+                            serverResponse.headers().getContentType() == MediaType.APPLICATION_JSON}
+                .verifyComplete()
+    }
+
+    def "GetAllExchangeMarketData handles error gracefully"() {
+        given: "A mock server request and an error"
+        exchangeApiServiceMock.getAllSupportedMarkets() >> Flux.error(new RuntimeException("An error occurred"))
+
+        when: "GetAllExchangeMarketData is called and return successfully and Error"
+        def responseErrorActual = exchangesApiHandler.getAllExchangeMarketData(serverRequestMock)
+
+        then: "It handles the error and returns an internal server error"
+        StepVerifier.create(responseErrorActual)
+                .expectErrorMatches {responseError ->
+                    responseError instanceof ApiClientErrorException &&
+                            responseError.getErrorTypeEnum() == ErrorTypeEnum.API_SERVER_ERROR &&
+                            responseError.getMessage() == "An unexpected error occurred in getAllExchangeMarketData"
+                }
+                .verify()
+    }
 
 }

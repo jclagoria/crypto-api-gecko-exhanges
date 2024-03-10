@@ -45,9 +45,10 @@ public class ExchangeApiService {
     public Flux<ExchangeBase> getAllSupportedMarkets() {
 
         log.info("In service getAllSupportedMarkets {} ",
-                externalServerConfig.getExchangeById() + externalServerConfig.getExchangeListMarket());
+                externalServerConfig.getExchangeList() + externalServerConfig.getExchangeListMarket());
 
-        return null;
+        return httpServiceCall.getFluxObject(externalServerConfig.getExchangeList()
+                + externalServerConfig.getExchangeListMarket(), ExchangeBase.class);
     }
 
     /**
