@@ -3,7 +3,7 @@ package ar.com.api.exchanges.services
 import ar.com.api.exchanges.configuration.ExternalServerConfig
 import ar.com.api.exchanges.configuration.HttpServiceCall
 import ar.com.api.exchanges.enums.ErrorTypeEnum
-import ar.com.api.exchanges.exception.ApiServeErrorrException
+import ar.com.api.exchanges.exception.ApiServeErrorException
 import ar.com.api.exchanges.model.Ping
 import org.instancio.Instancio
 import org.springframework.boot.test.context.SpringBootTest
@@ -48,7 +48,7 @@ class CoinGeckoServiceStatusTest extends Specification {
 
     def "CoinGeckoServiceStatus should handle 4xx client error gracefully"() {
         given: "A mock setup HttServiceCall and ExternalServerConfig with a 4xx client error"
-        def expectedApiClientError = new ApiServeErrorrException("Client error occurred", "Bad Request",
+        def expectedApiClientError = new ApiServeErrorException("Client error occurred", "Bad Request",
                 ErrorTypeEnum.GECKO_CLIENT_ERROR, HttpStatus.BAD_REQUEST)
         httpServiceCallMock.getMonoObject("pingURLEndPointMock", Ping.class)
                 >> Mono.error(expectedApiClientError)
@@ -59,7 +59,7 @@ class CoinGeckoServiceStatusTest extends Specification {
         then: "The service gracefully handle the error"
         StepVerifier.create(actualErrorObject)
                 .expectErrorMatches { errorObject ->
-                    errorObject instanceof ApiServeErrorrException &&
+                    errorObject instanceof ApiServeErrorException &&
                             errorObject.getHttpStatus().is4xxClientError() &&
                             errorObject.getErrorTypeEnum() == expectedApiClientError.getErrorTypeEnum() &&
                             errorObject.getOriginalMessage() == expectedApiClientError.getOriginalMessage()
@@ -68,7 +68,7 @@ class CoinGeckoServiceStatusTest extends Specification {
 
     def "CoinGeckoServiceStatus should handle 5xx client error gracefully"() {
         given: "A mock setup HttServiceCall and ExternalServerConfig with a 4xx client error"
-        def expectedApiClientError = new ApiServeErrorrException("Client error occurred", "Bad Request",
+        def expectedApiClientError = new ApiServeErrorException("Client error occurred", "Bad Request",
                 ErrorTypeEnum.GECKO_CLIENT_ERROR, HttpStatus.BAD_REQUEST)
         httpServiceCallMock.getMonoObject("pingURLEndPointMock", Ping.class)
                 >> Mono.error(expectedApiClientError)
@@ -79,7 +79,7 @@ class CoinGeckoServiceStatusTest extends Specification {
         then: "The service gracefully handle the error"
         StepVerifier.create(actualErrorObject)
                 .expectErrorMatches { errorObject ->
-                    errorObject instanceof ApiServeErrorrException &&
+                    errorObject instanceof ApiServeErrorException &&
                             errorObject.getHttpStatus().is4xxClientError() &&
                             errorObject.getErrorTypeEnum() == expectedApiClientError.getErrorTypeEnum() &&
                             errorObject.getOriginalMessage() == expectedApiClientError.getOriginalMessage()
