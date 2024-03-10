@@ -57,11 +57,12 @@ public class ExchangeApiService {
      */
     public Mono<ExchangeById> getExchangeVolumenById(ExchangeVolumenDTO filterDTO) {
         log.info("In service getExchangeVolumenById {}",
-                externalServerConfig.getExchangeList() + externalServerConfig.getExchangeListMarket());
+                externalServerConfig.getExchangeList() + externalServerConfig.getExchangeById());
 
-        String idMarket = String.format(externalServerConfig.getExchangeListMarket(), filterDTO.getId());
+        String idMarket = String.format(externalServerConfig.getExchangeById(), filterDTO.getId());
 
-        return null;
+        return httpServiceCall.getMonoObject(externalServerConfig.getExchangeList() + idMarket,
+                ExchangeById.class);
     }
 
     /**
