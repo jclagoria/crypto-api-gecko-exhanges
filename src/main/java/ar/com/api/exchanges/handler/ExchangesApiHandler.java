@@ -34,8 +34,7 @@ public class ExchangesApiHandler {
      * @return
      */
     public Mono<ServerResponse> getAllExchangesCoinGecko(ServerRequest sRequest) {
-
-        log.info("In getAllExchangesCoinGecko");
+        log.info("Fetching List of Exchanges from CoinGecko API");
 
         return Mono.just(sRequest)
                 .map(MapperHandler::createExchangeDTOFromRequest)
@@ -58,14 +57,20 @@ public class ExchangesApiHandler {
      * @return
      */
     public Mono<ServerResponse> getAllExchangeMarketData(ServerRequest sRequest) {
+        log.info("Fetching List of Market Exchanges from CoinGecko API");
 
-        log.info("In getAllExchangeMarketData");
-
-        return ServerResponse
-                .ok()
-                .body(
-                        serviceExchange.getAllSupportedMarkets(),
-                        ExchangeBase.class);
+        return serviceExchange.getAllSupportedMarkets()
+                .collectList()
+                .flatMap(exchangesList -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(exchangesList))
+                .switchIfEmpty(ServerResponse.notFound().build())
+                .doOnSubscribe(subscription -> log.info("Retrieving list of Market Exchanges"))
+                .onErrorResume(error -> Mono.
+                        error(new ApiClientErrorException("An unexpected error occurred in getAllExchangeMarketData",
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                ErrorTypeEnum.API_SERVER_ERROR))
+                );
     }
 
     /**
