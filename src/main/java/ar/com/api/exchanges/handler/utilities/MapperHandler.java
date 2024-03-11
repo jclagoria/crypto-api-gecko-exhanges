@@ -2,6 +2,7 @@ package ar.com.api.exchanges.handler.utilities;
 
 import ar.com.api.exchanges.dto.ExchangeDTO;
 import ar.com.api.exchanges.dto.ExchangeVolumeDTO;
+import ar.com.api.exchanges.dto.TickersByIdDTO;
 import ar.com.api.exchanges.utils.StringToInteger;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import reactor.core.publisher.Mono;
@@ -24,6 +25,20 @@ public class MapperHandler {
         return Mono.just(ExchangeVolumeDTO
                 .builder()
                 .id(sRequest.pathVariable("idMarket"))
+                .build());
+    }
+
+    public static  Mono<TickersByIdDTO> createTickersByIdDTOFromRequest(ServerRequest sRequest) {
+        Optional<Integer> page = sRequest.queryParam("page").map(Integer::valueOf);
+
+        return Mono.just(TickersByIdDTO
+                .builder()
+                .id(sRequest.pathVariable("idMarket"))
+                .coinIds(sRequest.queryParam("coinIds"))
+                .includeExchangeLogo(sRequest.queryParam("includeExchangeLogo"))
+                .page(page)
+                .depth(sRequest.queryParam("depth"))
+                .order(sRequest.queryParam("order"))
                 .build());
     }
 }

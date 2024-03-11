@@ -2,11 +2,13 @@ package ar.com.api.exchanges.handler
 
 import ar.com.api.exchanges.dto.ExchangeDTO
 import ar.com.api.exchanges.dto.ExchangeVolumeDTO
+import ar.com.api.exchanges.dto.TickersByIdDTO
 import ar.com.api.exchanges.enums.ErrorTypeEnum
 import ar.com.api.exchanges.exception.ApiClientErrorException
 import ar.com.api.exchanges.model.Exchange
 import ar.com.api.exchanges.model.ExchangeBase
 import ar.com.api.exchanges.model.ExchangeById
+import ar.com.api.exchanges.model.TickersById
 import ar.com.api.exchanges.services.ExchangeApiService
 import ar.com.api.exchanges.validators.ValidatorOfCTOComponent
 import org.instancio.Instancio
@@ -186,4 +188,66 @@ class ExchangesApiHandlerTest extends Specification {
                 .verify()
     }
 
+    def "GetTickerExchangeById return successfully a ServerResponse with HttpStatus Ok"() {
+        given: "Mocked service with TickersById and FilterDTO and ServeRequest and ValidatorOfCTOComponent"
+        def expectedTicketById = Instancio.create(TickersById.class)
+        def filterDTO = Instancio.create(TickersByIdDTO.class)
+        serverRequestMock.queryParam(_ as String) >> Optional.of("1")
+        serverRequestMock.queryParam(_ as String) >> Optional.of("bitcoin")
+        validatorOfDTOComponentMock.validation(_) >> Mono.just(filterDTO)
+        exchangeApiServiceMock.getTicketExchangeById(_ as TickersByIdDTO) >> Mono.just(expectedTicketById)
+
+        when: "GetTickerExchangeById is called and return successfully ServerResponse"
+        def actualResponseObject = exchangesApiHandler.getTickerExchangeById(serverRequestMock)
+
+        then: "It returns a ServerResponse with a object TickersById"
+        StepVerifier.create(actualResponseObject)
+                .expectNextMatches {response ->
+                    response.statusCode().is2xxSuccessful() &&
+                            response.headers().getContentType() == MediaType.APPLICATION_JSON
+                }
+                .verifyComplete()
+    }
+
+    def "GetTickerExchangeById returns not found when no exchanges return form the API Service"() {
+        given: "Mocked service with Empty and FilterDTO and ServeRequest and ValidatorOfCTOComponent"
+        def filterDTO = Instancio.create(TickersByIdDTO.class)
+        serverRequestMock.queryParam(_ as String) >> Optional.of("1")
+        serverRequestMock.queryParam(_ as String) >> Optional.of("bitcoin")
+        validatorOfDTOComponentMock.validation(_) >> Mono.just(filterDTO)
+        exchangeApiServiceMock.getTicketExchangeById(_ as TickersByIdDTO) >> Mono.empty()
+
+        when: "GetTickerExchangeById is called and return successfully ServerResponse of empty object"
+        def responseActualResponse = exchangesApiHandler.getTickerExchangeById(serverRequestMock)
+
+        then: "It return a not found response"
+        StepVerifier.create(responseActualResponse)
+                .expectNextMatches { responseMono ->
+                    responseMono.statusCode() == HttpStatus.NOT_FOUND
+                }
+                .verifyComplete()
+    }
+
+    def "GetTickerExchangeById handles error gracefully"() {
+        given: "A mock server request and an empty GetTickerExchangeById"
+        def filterDTO = Instancio.create(TickersByIdDTO.class)
+        serverRequestMock.queryParam(_ as String) >> Optional.of("1")
+        serverRequestMock.queryParam(_ as String) >> Optional.of("bitcoin")
+        validatorOfDTOComponentMock.validation(_) >> Mono.just(filterDTO)
+        exchangeApiServiceMock.getExchangeVolumesById(_ as ExchangeVolumeDTO) >>
+                Mono.error(new RuntimeException("An error occurred"))
+
+        when: "getAllExchangesCoinGecko is called"
+        def responseActualResponse = exchangesApiHandler
+                .getTickerExchangeById(serverRequestMock)
+
+        then: "It handles the error and returns an internal server error"
+        StepVerifier.create(responseActualResponse)
+                .expectErrorMatches {responseError ->
+                    responseError instanceof ApiClientErrorException &&
+                            responseError.getErrorTypeEnum() == ErrorTypeEnum.API_SERVER_ERROR &&
+                            responseError.getMessage() == "An unexpected error occurred in getTickerExchangeById"
+                }
+                .verify()
+    }
 }
