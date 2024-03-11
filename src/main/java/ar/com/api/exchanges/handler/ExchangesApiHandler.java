@@ -98,32 +98,22 @@ public class ExchangesApiHandler {
     }
 
     public Mono<ServerResponse> getTickerExchangeById(ServerRequest sRequest) {
+        log.info("Fetching Ticker Exchange by Market ID from CoinGecko API");
 
-        log.info("In getTickerExchangeById");
-
-        Optional<Integer> optPerPage = Optional.empty();
-
-        if (sRequest.queryParam("page").isPresent()) {
-            optPerPage = Optional
-                    .of(sRequest.queryParam("page")
-                            .get()
-                            .transform(StringToInteger.INSTANCE));
-        }
-
-        TickersByIdDTO filterDTO = TickersByIdDTO
-                .builder()
-                .id(sRequest.pathVariable("idMarket"))
-                .coinIds(sRequest.queryParam("coinIds"))
-                .includeExchangeLogo(sRequest.queryParam("includeExchangeLogo"))
-                .page(optPerPage)
-                .depth(sRequest.queryParam("depth"))
-                .order(sRequest.queryParam("order"))
-                .build();
-
-        return ServerResponse
-                .ok()
-                .body(serviceExchange.getTicketExchangeById(filterDTO),
-                        TickersById.class);
+        return Mono.just(sRequest)
+                .flatMap(MapperHandler::createTickersByIdDTOFromRequest)
+                .flatMap(validatorComponent::validation)
+                .flatMap(serviceExchange::getTicketExchangeById)
+                .flatMap(tickerList -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(tickerList))
+                .switchIfEmpty(ServerResponse.notFound().build())
+                .doOnSubscribe(subscription -> log.info("Retrieving Ticker by Market ID"))
+                .onErrorResume(error -> Mono.error(
+                        new ApiClientErrorException("An unexpected error occurred in getTickerExchangeById",
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                ErrorTypeEnum.API_SERVER_ERROR)
+                ));
     }
 
     public Mono<ServerResponse> getVolumeChartById(ServerRequest sRequest) {

@@ -4,11 +4,13 @@ import ar.com.api.exchanges.configuration.ExternalServerConfig
 import ar.com.api.exchanges.configuration.HttpServiceCall
 import ar.com.api.exchanges.dto.ExchangeDTO
 import ar.com.api.exchanges.dto.ExchangeVolumeDTO
+import ar.com.api.exchanges.dto.TickersByIdDTO
 import ar.com.api.exchanges.enums.ErrorTypeEnum
 import ar.com.api.exchanges.exception.ApiServeErrorException
 import ar.com.api.exchanges.model.Exchange
 import ar.com.api.exchanges.model.ExchangeBase
 import ar.com.api.exchanges.model.ExchangeById
+import ar.com.api.exchanges.model.TickersById
 import org.instancio.Instancio
 import org.springframework.http.HttpStatus
 import reactor.core.publisher.Flux
@@ -29,6 +31,7 @@ class ExchangeApiServiceTest extends Specification {
         externalServerConfigMock.getExchangeList() >> "exchangeListEndPointMock"
         externalServerConfigMock.getExchangeListMarket() >> "exchangeListMarketEndPointMock"
         externalServerConfigMock.getExchangeById() >> "/exchangeByIdEndPointMock/binance"
+        externalServerConfigMock.getExchangeTickerById() >> "/exchangeByIdEndPointMock/binance/tickers"
 
         exchangeApiService = new ExchangeApiService(httpServiceCallMock, externalServerConfigMock)
     }
@@ -186,7 +189,7 @@ class ExchangeApiServiceTest extends Specification {
                 .verifyComplete()
     }
 
-    def "GetExchangeById  should handle 4xx client error gracefully"() {
+    def "GetExchangeById should handle 4xx client error gracefully"() {
         given: "A mocked ExchangeVolumenDTO and expected ApiServeErrorException response"
         def filterDTO = Instancio.create(ExchangeVolumeDTO.class)
         def clientErrorExpected = new ApiServeErrorException("An error occurred on APIClient", "Unauthorized",
@@ -216,6 +219,67 @@ class ExchangeApiServiceTest extends Specification {
 
         when: "GetExchangeVolumesById is called with the filter DTO"
         def actualExceptionObject = exchangeApiService.getExchangeVolumesById(filterDTO)
+
+        then: "The correct error ApiServeErrorException is returned, and content is verified"
+        StepVerifier.create(actualExceptionObject)
+                .expectErrorMatches {errorActual ->
+                    errorActual instanceof ApiServeErrorException &&
+                            errorActual.getErrorTypeEnum() == ErrorTypeEnum.GECKO_SERVER_ERROR &&
+                            errorActual.getHttpStatus().is5xxServerError() &&
+                            errorActual.getMessage() == clientErrorExpected.getMessage()
+                }
+                .verify()
+    }
+
+    def "GetTicketExchangeById should successfully retrieve Tickers by Market ID"() {
+        given: "A mocked TickersByIdDTO and expected TickersById response"
+        def filterDTO = Instancio.create(TickersByIdDTO.class)
+        def expectedObject = Instancio.create(TickersById.class)
+        httpServiceCallMock.getMonoObject(_ as String, TickersById.class) >> Mono.just(expectedObject)
+
+        when: "GetTicketExchangeById is called with the filter DTO"
+        def actualResult = exchangeApiService.getTicketExchangeById(filterDTO)
+
+        then: "The correct object TickersById is returned, and content is verified"
+        StepVerifier.create(actualResult)
+                .assertNext {tickerObject ->
+                    assert tickerObject.getName() == expectedObject.getName() : "The Name in actual should no be different from the expected"
+                    assert !tickerObject.getTicker().isEmpty() : "The Ticker list should not be empty"
+                    assert tickerObject.getTicker().containsAll(expectedObject.getTicker()) : "The content of list in actualObject should no be different from the expected"
+                }
+                .verifyComplete()
+    }
+
+    def "GetTicketExchangeById should handle 4xx client error gracefully"() {
+        given: "A mocked TickersByIdDTO and expected TickersById response"
+        def filterDTO = Instancio.create(TickersByIdDTO.class)
+        def clientErrorExpected = new ApiServeErrorException("An error occurred on APIClient", "Request Timeout",
+                ErrorTypeEnum.GECKO_CLIENT_ERROR, HttpStatus.REQUEST_TIMEOUT)
+        httpServiceCallMock.getMonoObject(_ as String, TickersById.class) >> Mono.error(clientErrorExpected)
+
+        when: "GetTicketExchangeById is called with the filter DTO"
+        def actualExceptionObject = exchangeApiService.getTicketExchangeById(filterDTO)
+
+        then: "The correct error ApiServeErrorException is returned, and content is verified"
+        StepVerifier.create(actualExceptionObject)
+                .expectErrorMatches {errorActual ->
+                    errorActual instanceof ApiServeErrorException &&
+                            errorActual.getErrorTypeEnum() == ErrorTypeEnum.GECKO_CLIENT_ERROR &&
+                            errorActual.getHttpStatus().is4xxClientError() &&
+                            errorActual.getMessage() == clientErrorExpected.getMessage()
+                }
+                .verify()
+    }
+
+    def "GetTicketExchangeById should handle 5xx client error gracefully"() {
+        given: "A mocked TickersByIdDTO and expected TickersById response"
+        def filterDTO = Instancio.create(TickersByIdDTO.class)
+        def clientErrorExpected = new ApiServeErrorException("An error occurred on APIServer", "Loop Detected",
+                ErrorTypeEnum.GECKO_SERVER_ERROR, HttpStatus.LOOP_DETECTED)
+        httpServiceCallMock.getMonoObject(_ as String, TickersById.class) >> Mono.error(clientErrorExpected)
+
+        when: "GetTicketExchangeById is called with the filter DTO"
+        def actualExceptionObject = exchangeApiService.getTicketExchangeById(filterDTO)
 
         then: "The correct error ApiServeErrorException is returned, and content is verified"
         StepVerifier.create(actualExceptionObject)
