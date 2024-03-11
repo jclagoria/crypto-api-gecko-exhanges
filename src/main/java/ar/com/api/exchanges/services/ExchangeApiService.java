@@ -81,12 +81,14 @@ public class ExchangeApiService {
 
     public Flux<String> getVolumeChartById(VolumeChartByIdDTO filterDto) {
 
-        log.info("In service getTicketExchangeById {}"
-                ,externalServerConfig.getExchangeList() + externalServerConfig.getExchangeVolumeChart());
+        log.info("In service getTicketExchangeById {}",
+                externalServerConfig.getExchangeList() + externalServerConfig.getExchangeVolumeChart());
 
         String urlApiGecko = String.format(externalServerConfig.getExchangeVolumeChart(), filterDto.getId());
 
-        return null;
+        return httpServiceCall.getFluxObject(externalServerConfig.getExchangeList() + urlApiGecko
+                        + filterDto.getUrlFilterString(),
+                String.class);
     }
 
 }
