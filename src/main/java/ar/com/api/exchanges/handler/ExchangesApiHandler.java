@@ -117,20 +117,23 @@ public class ExchangesApiHandler {
     }
 
     public Mono<ServerResponse> getVolumeChartById(ServerRequest sRequest) {
+        log.info("Fetching Volume Chart by Market ID and days from CoinGecko API");
 
-        log.info("In getVolumeChartById");
-
-        VolumeChartByIdDTO filterDTO = VolumeChartByIdDTO
-                .builder()
-                .id(sRequest.pathVariable("idMarket"))
-                .days(Integer.valueOf(sRequest.queryParam("days").get()))
-                .build();
-
-        return ServerResponse
-                .ok()
-                .body(
-                        serviceExchange.getVolumeChartById(filterDTO),
-                        String.class);
+        return Mono.just(sRequest)
+                .flatMap(MapperHandler::createVolumeChartByIdDTOFromRequest)
+                .flatMap(validatorComponent::validation)
+                .flatMapMany(serviceExchange::getVolumeChartById)
+                .collectList()
+                .flatMap(listVolumeChart -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(listVolumeChart.get(0)))
+                .switchIfEmpty(ServerResponse.notFound().build())
+                .doOnSubscribe(subscription -> log.info("Retrieving list of Strings"))
+                .onErrorResume(error -> Mono
+                        .error(new ApiClientErrorException("An unexpected error occurred in getVolumeChartById",
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                ErrorTypeEnum.API_SERVER_ERROR))
+                );
     }
 
 }

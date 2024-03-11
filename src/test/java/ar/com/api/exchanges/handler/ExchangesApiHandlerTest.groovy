@@ -3,6 +3,7 @@ package ar.com.api.exchanges.handler
 import ar.com.api.exchanges.dto.ExchangeDTO
 import ar.com.api.exchanges.dto.ExchangeVolumeDTO
 import ar.com.api.exchanges.dto.TickersByIdDTO
+import ar.com.api.exchanges.dto.VolumeChartByIdDTO
 import ar.com.api.exchanges.enums.ErrorTypeEnum
 import ar.com.api.exchanges.exception.ApiClientErrorException
 import ar.com.api.exchanges.model.Exchange
@@ -104,9 +105,10 @@ class ExchangesApiHandlerTest extends Specification {
 
         then: "It returns a ServerResponse with the list of Exchanges"
         StepVerifier.create(actualResponseObject)
-                .expectNextMatches {serverResponse ->
+                .expectNextMatches { serverResponse ->
                     serverResponse.statusCode().is2xxSuccessful() &&
-                            serverResponse.headers().getContentType() == MediaType.APPLICATION_JSON}
+                            serverResponse.headers().getContentType() == MediaType.APPLICATION_JSON
+                }
                 .verifyComplete()
     }
 
@@ -119,7 +121,7 @@ class ExchangesApiHandlerTest extends Specification {
 
         then: "It handles the error and returns an internal server error"
         StepVerifier.create(responseErrorActual)
-                .expectErrorMatches {responseError ->
+                .expectErrorMatches { responseError ->
                     responseError instanceof ApiClientErrorException &&
                             responseError.getErrorTypeEnum() == ErrorTypeEnum.API_SERVER_ERROR &&
                             responseError.getMessage() == "An unexpected error occurred in getAllExchangeMarketData"
@@ -141,9 +143,10 @@ class ExchangesApiHandlerTest extends Specification {
 
         then: "It returns a ServerResponse with a object ExchangeById"
         StepVerifier.create(actualResponseObject)
-                .expectNextMatches {response ->
+                .expectNextMatches { response ->
                     response.statusCode().is2xxSuccessful() &&
-                            response.headers().getContentType() == MediaType.APPLICATION_JSON }
+                            response.headers().getContentType() == MediaType.APPLICATION_JSON
+                }
                 .verifyComplete()
     }
 
@@ -180,7 +183,7 @@ class ExchangesApiHandlerTest extends Specification {
 
         then: "It handles the error and returns an internal server error"
         StepVerifier.create(responseActualResponse)
-                .expectErrorMatches {responseError ->
+                .expectErrorMatches { responseError ->
                     responseError instanceof ApiClientErrorException &&
                             responseError.getErrorTypeEnum() == ErrorTypeEnum.API_SERVER_ERROR &&
                             responseError.getMessage() == "An unexpected error occurred in getExchangeVolumeDataById"
@@ -202,7 +205,7 @@ class ExchangesApiHandlerTest extends Specification {
 
         then: "It returns a ServerResponse with a object TickersById"
         StepVerifier.create(actualResponseObject)
-                .expectNextMatches {response ->
+                .expectNextMatches { response ->
                     response.statusCode().is2xxSuccessful() &&
                             response.headers().getContentType() == MediaType.APPLICATION_JSON
                 }
@@ -243,11 +246,53 @@ class ExchangesApiHandlerTest extends Specification {
 
         then: "It handles the error and returns an internal server error"
         StepVerifier.create(responseActualResponse)
-                .expectErrorMatches {responseError ->
+                .expectErrorMatches { responseError ->
                     responseError instanceof ApiClientErrorException &&
                             responseError.getErrorTypeEnum() == ErrorTypeEnum.API_SERVER_ERROR &&
                             responseError.getMessage() == "An unexpected error occurred in getTickerExchangeById"
                 }
                 .verify()
     }
+
+    def "GetVolumeChartById return successfully a ServerResponse with HttpStatus Ok"() {
+        given: "Mocked service with List of String and FilterDTO and ServerRequest and ValidatorOgCToComponent"
+        def expectedStringList = Instancio.ofList(String.class).size(5).create()
+        def filterDTO = Instancio.create(VolumeChartByIdDTO.class)
+        serverRequestMock.queryParam(_ as String) >> Optional.of("1")
+        validatorOfDTOComponentMock.validation(_) >> Mono.just(filterDTO)
+        exchangeApiServiceMock.getVolumeChartById(_ as VolumeChartByIdDTO) >> Flux.fromIterable(expectedStringList)
+
+        when: "GetTickerExchangeById is called and return successfully ServerResponse"
+        def actualResponseObject = exchangesApiHandler.getVolumeChartById(serverRequestMock)
+
+        then: "It returns a ServerResponse with a object List of String"
+        StepVerifier.create(actualResponseObject)
+                .expectNextMatches { response ->
+                    response.statusCode().is2xxSuccessful() &&
+                            response.headers().getContentType() == MediaType.APPLICATION_JSON
+                }
+                .verifyComplete()
+    }
+
+    def "GetVolumeChartById return an error and handles error gracefully"() {
+        given: "Mocked service with RuntimeException and FilterDTO and ServerRequest and ValidatorOgCToComponent"
+        def filterDTO = Instancio.create(VolumeChartByIdDTO.class)
+        serverRequestMock.queryParam(_ as String) >> Optional.of("1")
+        validatorOfDTOComponentMock.validation(_) >> Mono.just(filterDTO)
+        exchangeApiServiceMock.getVolumeChartById(_ as VolumeChartByIdDTO) >>
+                Flux.error(new RuntimeException("An error occurred"))
+
+        when: "GetTickerExchangeById is called and return successfully ServerResponse"
+        def actualResponseObject = exchangesApiHandler.getVolumeChartById(serverRequestMock)
+
+        then: "It returns a ServerResponse with a object List of String"
+        StepVerifier.create(actualResponseObject)
+                .expectErrorMatches { responseError ->
+                    responseError instanceof ApiClientErrorException &&
+                            responseError.getErrorTypeEnum() == ErrorTypeEnum.API_SERVER_ERROR &&
+                            responseError.getMessage() == "An unexpected error occurred in getVolumeChartById"
+                }
+                .verify()
+    }
+
 }

@@ -5,6 +5,7 @@ import ar.com.api.exchanges.configuration.HttpServiceCall
 import ar.com.api.exchanges.dto.ExchangeDTO
 import ar.com.api.exchanges.dto.ExchangeVolumeDTO
 import ar.com.api.exchanges.dto.TickersByIdDTO
+import ar.com.api.exchanges.dto.VolumeChartByIdDTO
 import ar.com.api.exchanges.enums.ErrorTypeEnum
 import ar.com.api.exchanges.exception.ApiServeErrorException
 import ar.com.api.exchanges.model.Exchange
@@ -32,6 +33,7 @@ class ExchangeApiServiceTest extends Specification {
         externalServerConfigMock.getExchangeListMarket() >> "exchangeListMarketEndPointMock"
         externalServerConfigMock.getExchangeById() >> "/exchangeByIdEndPointMock/binance"
         externalServerConfigMock.getExchangeTickerById() >> "/exchangeByIdEndPointMock/binance/tickers"
+        externalServerConfigMock.getExchangeVolumeChart() >> "/exchangeByIdEndPointMock/binance/volume_chart"
 
         exchangeApiService = new ExchangeApiService(httpServiceCallMock, externalServerConfigMock)
     }
@@ -51,7 +53,7 @@ class ExchangeApiServiceTest extends Specification {
                 .recordWith(ArrayList::new)
                 .expectNextCount(expectedExchange.size())
                 .consumeRecordedWith { actualExchanges ->
-                    assert actualExchanges.containsAll(expectedExchange)
+                    assert actualExchanges.containsAll(expectedExchange) : "The content of the list should not be different"
                 }
                 .verifyComplete()
     }
@@ -116,7 +118,7 @@ class ExchangeApiServiceTest extends Specification {
                 .recordWith(ArrayList::new)
                 .expectNextCount(expectedMarketExchangeList.size())
                 .consumeRecordedWith { actualExchanges ->
-                    assert actualExchanges.containsAll(expectedMarketExchangeList)
+                    assert actualExchanges.containsAll(expectedMarketExchangeList) : "The content of the list should not be different"
                 }
                 .verifyComplete()
     }
@@ -251,7 +253,7 @@ class ExchangeApiServiceTest extends Specification {
     }
 
     def "GetTicketExchangeById should handle 4xx client error gracefully"() {
-        given: "A mocked TickersByIdDTO and expected TickersById response"
+        given: "A mocked TickersByIdDTO and expected ApiServeErrorException response"
         def filterDTO = Instancio.create(TickersByIdDTO.class)
         def clientErrorExpected = new ApiServeErrorException("An error occurred on APIClient", "Request Timeout",
                 ErrorTypeEnum.GECKO_CLIENT_ERROR, HttpStatus.REQUEST_TIMEOUT)
@@ -291,4 +293,68 @@ class ExchangeApiServiceTest extends Specification {
                 }
                 .verify()
     }
+
+    def "GetVolumeChartById should successfully retrieve Volume Chart By Market Id and days"() {
+        given: "A mocked VolumeChartByIdDTO and expected List of String"
+        def filterDTO = Instancio.create(VolumeChartByIdDTO.class)
+        def expectedObject = Instancio.ofList(String).size(5).create()
+        httpServiceCallMock.getFluxObject(_ as String, String.class) >> Flux.fromIterable(expectedObject)
+
+        when: "GetVolumeChartById is called with the filter DTO"
+        def actualListResult = exchangeApiService.getVolumeChartById(filterDTO)
+
+        then: "The correct List of String is returned, and content is verified"
+        StepVerifier.create(actualListResult)
+                .recordWith(ArrayList::new)
+                .expectNextCount(expectedObject.size())
+                .consumeRecordedWith {actualResponse ->
+                    assert  actualResponse.containsAll(expectedObject) : "The content of the list should not be different"
+                }
+                .verifyComplete()
+    }
+
+    def "GetVolumeChartById should handle 4xx client error gracefully"() {
+        given: "A  mocked VolumeChartByIdDTO and expected ApiServeErrorException"
+        def filterDTO = Instancio.create(VolumeChartByIdDTO.class)
+        def clientErrorExpected = new ApiServeErrorException("An Error occurred on APIClient", "Forbidden",
+                ErrorTypeEnum.GECKO_CLIENT_ERROR, HttpStatus.FORBIDDEN)
+        httpServiceCallMock.getFluxObject(_ as String, String.class) >> Flux.error(clientErrorExpected)
+
+        when: "GetVolumeChartById is called with the filter DTO"
+        def actualErrorExpected = exchangeApiService.getVolumeChartById(filterDTO)
+
+        then: "The correct error ApiServeErrorException is returned, and content is verified"
+        StepVerifier.create(actualErrorExpected)
+                .expectErrorMatches {errorActual ->
+                    errorActual instanceof ApiServeErrorException &&
+                            errorActual.getErrorTypeEnum() == ErrorTypeEnum.GECKO_CLIENT_ERROR &&
+                            errorActual.getHttpStatus().is4xxClientError() &&
+                            errorActual.getMessage() == clientErrorExpected.getMessage()
+                }
+                .verify()
+    }
+
+    def "GetVolumeChartById should handle 5xx client error gracefully"() {
+        given: "A  mocked VolumeChartByIdDTO and expected ApiServeErrorException"
+        def filterDTO = Instancio.create(VolumeChartByIdDTO.class)
+        def clientErrorExpected = new ApiServeErrorException("An Error occurred on APIServer",
+                "Variant Also Negotiates",
+                ErrorTypeEnum.GECKO_SERVER_ERROR,
+                HttpStatus.VARIANT_ALSO_NEGOTIATES)
+        httpServiceCallMock.getFluxObject(_ as String, String.class) >> Flux.error(clientErrorExpected)
+
+        when: "GetVolumeChartById is called with the filter DTO"
+        def actualErrorExpected = exchangeApiService.getVolumeChartById(filterDTO)
+
+        then: "The correct error ApiServeErrorException is returned, and content is verified"
+        StepVerifier.create(actualErrorExpected)
+                .expectErrorMatches {errorActual ->
+                    errorActual instanceof ApiServeErrorException &&
+                            errorActual.getErrorTypeEnum() == ErrorTypeEnum.GECKO_SERVER_ERROR &&
+                            errorActual.getHttpStatus().is5xxServerError() &&
+                            errorActual.getMessage() == clientErrorExpected.getMessage()
+                }
+                .verify()
+    }
+
 }
